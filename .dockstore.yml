@@ -4,7 +4,9 @@ workflows:
     primaryDescriptorPath: /wdl/MAS-seq_data-processing_main.wdl
     testParameterFiles:
       - /optional.json
+    name: main
   - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
+    name: pbtools
