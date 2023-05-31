@@ -5,6 +5,6 @@ workflows:
     testParameterFiles:
       - /optional.json
   - subclass: WDL
-    primaryDescriptionPath: /wdl/tasks/pbtools.wdl
+    primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
