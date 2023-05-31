@@ -30,14 +30,14 @@ task pbSkera {
 
     command <<<
         sampleid=`echo $test | awk -F '/' '{print $NF}' | awk -F '.hifi_reads.bam' '{print $1}'`
-        out_skera=~{gcs_output_dir}${sampleid}.skera.bam
+        out_skera=~{gcs_output_dir}/skera/${sampleid}.skera.bam
         skera split –j ~{num_threads} ~{hifi_bam} ${out_skera}
     >>>
     # ------------------------------------------------
     # Outputs:
     output {
         # Default output file name:
-        File skera_out         = "${out_skera}"
+        String skera_out        = "~{gcs_output_dir}/skera"
     }
 
 # ------------------------------------------------

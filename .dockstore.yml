@@ -2,9 +2,9 @@ version: 1.2
 workflows:
   - subclass: WDL
     primaryDescriptorPath: /wdl/MAS-seq_data-processing_main.wdl
-    authors:
-    - name: akhorgad@broadinstitute.org
+    testParameterFiles:
+      - /optional.json
   - subclass: WDL
     primaryDescriptionPath: /wdl/tasks/pbtools.wdl
-    authors:
-    - name: akhorgad@broadinstitute.org
+    testParameterFiles:
+      - /optional.json
