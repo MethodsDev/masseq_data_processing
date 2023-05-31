@@ -4,7 +4,7 @@ import "tasks/pbtools.wdl" as PB
 
 workflow pb_masseq_workflow {
     input{
-        File input_reads_bam
+        File input_bam
         File mas_adapters_fasta
         String gcs_output_dir
 
@@ -18,7 +18,7 @@ workflow pb_masseq_workflow {
     }
     call PB.pbSkera{
         input:
-            hifi_bam            = input_reads_bam,
+            hifi_bam            = input_bam,
             mas_adapters_fasta  = mas_adapters_fasta,
             num_threads         = num_threads,
             gcs_output_dir      = gcs_output_dir
