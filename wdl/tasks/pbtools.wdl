@@ -29,9 +29,12 @@ task pbSkera {
     Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
 
     command <<<
+        set -x
+
         sampleid=`echo ~{hifi_bam} | awk -F '/' '{print $NF}' | awk -F '.hifi_reads' '{print $1}'`
-        out_skera=~{gcs_output_dir}/skera/${sampleid}.skera.bam
-        skera split –j ~{num_threads} ~{hifi_bam} ${out_skera}
+        out_skera=~{gcs_output_dir}/skera/$sampleid.skera.bam
+        skera split –j ~{num_threads} ~{hifi_bam} $out_skera
+
     >>>
     # ------------------------------------------------
     # Outputs:
