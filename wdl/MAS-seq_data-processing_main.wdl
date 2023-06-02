@@ -24,6 +24,6 @@ workflow pb_masseq_workflow {
             gcs_output_dir      = gcs_output_dir
     }
     output{
-        String out_path           = pbSkera.skera_out
+        String out_path         = pbSkera.skera_out
     }
 }

@@ -21,9 +21,9 @@ task pbSkera {
     }
     # Computing required disk size
     Float input_files_size_gb = 2.5*(size(hifi_bam, "GiB"))
-    Int default_ram = 4
+    Int default_ram = 8
     Int default_disk_space_gb = ceil((input_files_size_gb * 2) + 1024)
-    Int default_boot_disk_size_gb = 15
+    Int default_boot_disk_size_gb = 25
 
     # Mem is in units of GB
     Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
@@ -40,7 +40,7 @@ task pbSkera {
     # Outputs:
     output {
         # Default output file name:
-        String skera_out        = "~{gcs_output_dir}/skera"
+        String skera_out        = "$outdir/skera/$sampleid.skera.bam"
     }
 
 # ------------------------------------------------
@@ -51,7 +51,7 @@ task pbSkera {
     disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
     bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
     preemptible: select_first([preemptible_attempts, 0])
-    cpu: select_first([cpu, 1])
+    cpu: select_first([cpu, 2])
     }
 
 }
