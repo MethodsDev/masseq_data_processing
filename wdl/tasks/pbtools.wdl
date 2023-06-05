@@ -35,11 +35,11 @@ task pbSkera {
         echo ~{outdir}/skera/$sampleid.skera.bam
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} $sampleid.skera.bam
         echo "Copying skera out to gcs path provided..."
-        gsutil -m cp $sampleid.skera.bam ~{outdir}/skera/
+        /root/google-cloud-sdk/bin/gsutil -m cp $sampleid.skera.bam ~{outdir}/skera/
 
     >>>
-    # ------------------------------------------------
-    # Outputs:
+# ------------------------------------------------
+# Outputs:
     output {
         # Default output file name:
         String skera_out        = "~{outdir}/skera/"
