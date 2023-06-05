@@ -31,8 +31,8 @@ task pbSkera {
     command <<<
         set -euxo pipefail
 
-        echo ~{outdir}/skera/$sampleid.skera.bam
         sampleid=`echo ~{hifi_bam} | awk -F '/' '{print $NF}' | awk -F '.hifi_reads' '{print $1}'`
+        echo ~{outdir}/skera/$sampleid.skera.bam
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} $sampleid.skera.bam
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp $sampleid.skera.bam ~{outdir}/skera/
