@@ -31,16 +31,18 @@ task pbSkera {
     command <<<
         set -euxo pipefail
 
+        echo ~{outdir}/skera/$sampleid.skera.bam
         sampleid=`echo ~{hifi_bam} | awk -F '/' '{print $NF}' | awk -F '.hifi_reads' '{print $1}'`
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} $sampleid.skera.bam
-        gsutil -m cp $sampleid.skera.bam $outdir/skera/
+        echo "Copying skera out to gcs path provided..."
+        gsutil -m cp $sampleid.skera.bam ~{outdir}/skera/
 
     >>>
     # ------------------------------------------------
     # Outputs:
     output {
         # Default output file name:
-        String skera_out        = "$outdir/skera/$sampleid.skera.bam"
+        String skera_out        = "~{outdir}/skera/$sampleid.skera.bam"
     }
 
 # ------------------------------------------------
