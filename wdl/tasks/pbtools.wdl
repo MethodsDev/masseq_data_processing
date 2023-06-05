@@ -42,7 +42,7 @@ task pbSkera {
     # Outputs:
     output {
         # Default output file name:
-        String skera_out        = "~{outdir}/skera/$sampleid.skera.bam"
+        String skera_out        = "~{outdir}/skera/"
     }
 
 # ------------------------------------------------
