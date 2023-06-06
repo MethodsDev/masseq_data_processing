@@ -36,7 +36,7 @@ task pbSkera {
         echo ~{outdir}skera/~{sample_id}.skera.bam
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
-        /root/google-cloud-sdk/bin/gsutil -m cp $sampleid.skera.bam ~{outdir}skera/
+        /root/google-cloud-sdk/bin/gsutil -m cp ~{sample_id}.skera.bam ~{outdir}skera/
 
     >>>
 # ------------------------------------------------
