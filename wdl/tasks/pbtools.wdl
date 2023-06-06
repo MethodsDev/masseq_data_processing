@@ -9,9 +9,11 @@ task pbSkera {
     input {
         # Required:
         File hifi_bam
+        String sample_id
         File mas_adapters_fasta
         Int num_threads
         String gcs_output_dir
+
         # Optional:
         Int? mem_gb
         Int? preemptible_attempts
@@ -31,18 +33,17 @@ task pbSkera {
     command <<<
         set -euxo pipefail
 
-        sampleid=`echo ~{hifi_bam} | awk -F '/' '{print $NF}' | awk -F '.hifi_reads' '{print $1}'`
-        echo ~{outdir}/skera/$sampleid.skera.bam
-        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} $sampleid.skera.bam
+        echo ~{outdir}skera/~{sample_id}.skera.bam
+        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
-        /root/google-cloud-sdk/bin/gsutil -m cp $sampleid.skera.bam ~{outdir}/skera/
+        /root/google-cloud-sdk/bin/gsutil -m cp $sampleid.skera.bam ~{outdir}skera/
 
     >>>
 # ------------------------------------------------
 # Outputs:
     output {
         # Default output file name:
-        String skera_out        = "~{outdir}/skera/"
+        String skera_out        = "~{outdir}/skera/~{sample_id}.skera.bam"
     }
 
 # ------------------------------------------------

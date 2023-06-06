@@ -7,6 +7,7 @@ workflow pb_masseq_workflow {
         File input_bam
         File mas_adapters_fasta
         String gcs_output_dir
+        String movie_name
 
         # Optional:
         Int num_threads = 20
@@ -19,6 +20,7 @@ workflow pb_masseq_workflow {
     call PB.pbSkera{
         input:
             hifi_bam            = input_bam,
+            sample_id           = movie_name,
             mas_adapters_fasta  = mas_adapters_fasta,
             num_threads         = num_threads,
             gcs_output_dir      = gcs_output_dir
