@@ -3,7 +3,8 @@ LABEL authors="akhorgad"
 
 ENV SRC=/usr/local/src
 ENV BIN=/usr/local/bin
-ENV CONDA_DIR /opt/conda
+ENV CONDA_DIR=/opt/conda
+
 WORKDIR $SRC
 
 
@@ -38,3 +39,5 @@ RUN conda install -c bioconda pbskera
 # install gsutil
 RUN curl https://sdk.cloud.google.com | bash
 ENTRYPOINT ["top", "-b"]
+
+ENV PATH=/root/google-cloud-sdk/bin:$PATH

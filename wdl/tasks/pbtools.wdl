@@ -36,7 +36,7 @@ task pbSkera {
         echo ~{outdir}skera/~{sample_id}.skera.bam
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
-        /root/google-cloud-sdk/bin/gsutil -m cp ~{sample_id}.skera.bam ~{outdir}skera/
+        gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
 
     >>>
 # ------------------------------------------------
@@ -49,7 +49,7 @@ task pbSkera {
 # ------------------------------------------------
 # Runtime settings:
     runtime {
-    docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag1"
+    docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag2"
     memory: machine_mem + " GiB"
     disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
     bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
