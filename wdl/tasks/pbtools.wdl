@@ -34,7 +34,6 @@ task pbSkera {
         set -euxo pipefail
 
         echo ~{hifi_bam} >> read_counts.txt
-        samtools view -c ~{hifi_bam} >> read_counts.txt
 
         echo ~{outdir}skera/~{sample_id}.skera.bam >> read_counts.txt
         gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
