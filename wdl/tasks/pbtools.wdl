@@ -37,9 +37,8 @@ task pbSkera {
 
         echo ~{outdir}skera/~{sample_id}.skera.bam >> read_counts.txt
         gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
-        echo "Checking skera version used"
-        which skera
-        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
+        chmod 777 /usr/local/bin/skera
+        /usr/local/bin/skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
         samtools view -c ~{outdir}skera/*.skera.bam >> read_counts.txt
