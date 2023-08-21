@@ -33,8 +33,12 @@ RUN wget https://github.com/samtools/samtools/releases/download/1.14/samtools-1.
 RUN wget -O /usr/local/bin/isoseq3 https://github.com/PacificBiosciences/IsoSeq/releases/download/v3.8.2/isoseq3 \
     && chmod 755 /usr/local/bin/isoseq3
 
-# install skera
-RUN conda install -c bioconda pbskera
+#commented on 15th Aug,2023 to use skera binary for Revio runs
+#install skera
+#RUN conda install -c bioconda pbskera
+
+#install samtools
+RUN conda install -c bioconda samtools
 
 # install gsutil
 RUN curl https://sdk.cloud.google.com | bash

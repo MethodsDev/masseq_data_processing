@@ -33,10 +33,18 @@ task pbSkera {
     command <<<
         set -euxo pipefail
 
-        echo ~{outdir}skera/~{sample_id}.skera.bam
+        gsutil -m cp ~{hifi_bam} ~{outdir}/hifi_bam
+        echo ~{hifi_bam} >> read_counts.txt
+        samtools view -c ~{outdir}/hifi_bam/~{hifi_bam} >> read_counts.txt
+
+        echo ~{outdir}skera/~{sample_id}.skera.bam >> read_counts.txt
+        gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
+        echo "Checking skera version used"
+        which skera
         skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
+        samtools view -c ~{outdir}skera/*.skera.bam >> read_counts.txt
 
     >>>
 # ------------------------------------------------
@@ -49,7 +57,7 @@ task pbSkera {
 # ------------------------------------------------
 # Runtime settings:
     runtime {
-    docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag2"
+    docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag3"
     memory: machine_mem + " GiB"
     disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
     bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
