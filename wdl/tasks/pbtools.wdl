@@ -41,7 +41,7 @@ task pbSkera {
         /usr/local/bin/skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
-        samtools view -c ~{outdir}skera/*.skera.bam >> read_counts.txt
+        samtools view -c ~{sample_id}.skera.bam >> read_counts.txt
         gsutil -m cp read_counts.txt ~{outdir}skera/
 
     >>>
