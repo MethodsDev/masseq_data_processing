@@ -37,8 +37,6 @@ RUN wget -O /usr/local/bin/isoseq3 https://github.com/PacificBiosciences/IsoSeq/
 #install skera
 #RUN conda install -c bioconda pbskera
 
-#install samtools
-RUN conda install -c bioconda samtools
 
 # install gsutil
 RUN curl https://sdk.cloud.google.com | bash
