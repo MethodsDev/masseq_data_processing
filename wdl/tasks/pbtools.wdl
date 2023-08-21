@@ -43,6 +43,7 @@ task pbSkera {
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
         samtools view -c ~{outdir}skera/*.skera.bam >> read_counts.txt
+        gsutil -m cp read_counts.txt ~{outdir}skera/
 
     >>>
 # ------------------------------------------------
