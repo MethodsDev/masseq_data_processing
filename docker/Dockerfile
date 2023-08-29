@@ -21,13 +21,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # install samtools
-RUN wget https://github.com/samtools/samtools/releases/download/1.14/samtools-1.14.tar.bz2 \
-    && tar xjf samtools-1.14.tar.bz2 \
-    && rm samtools-1.14.tar.bz2 \
-    && cd samtools-1.14 \
-    && ./configure \
-    && make \
-    && make install
+RUN conda install -c bioconda samtools
 
 #install isoeseq3
 RUN wget -O /usr/local/bin/isoseq3 https://github.com/PacificBiosciences/IsoSeq/releases/download/v3.8.2/isoseq3 \
@@ -36,7 +30,6 @@ RUN wget -O /usr/local/bin/isoseq3 https://github.com/PacificBiosciences/IsoSeq/
 #commented on 15th Aug,2023 to use skera binary for Revio runs
 #install skera
 #RUN conda install -c bioconda pbskera
-
 
 # install gsutil
 RUN curl https://sdk.cloud.google.com | bash
