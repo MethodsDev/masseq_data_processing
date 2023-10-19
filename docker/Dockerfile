@@ -20,28 +20,11 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 # Adding conda in path so we can use conda activate
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-# install samtools
-RUN conda install -c bioconda samtools
-
-#install isoeseq3
-RUN wget -O /usr/local/bin/isoseq3 https://github.com/PacificBiosciences/IsoSeq/releases/download/v3.8.2/isoseq3 \
-    && chmod 755 /usr/local/bin/isoseq3
-
-#commented on 15th Aug,2023 to use skera binary for Revio runs
-#install skera
-#RUN conda install -c bioconda pbskera
-
-# install gsutil
-RUN curl https://sdk.cloud.google.com | bash
-ENTRYPOINT ["top", "-b"]
-
-ENV PATH=/root/google-cloud-sdk/bin:$PATH
-
 #adding packages to support pb plots
-RUN conda install -c conda-forge matplotlib
-RUN conda install -c conda-forge argparse
-RUN conda install -c bioconda pysam
-RUN conda install -c conda-forge tqdm
-RUN conda install -c conda-forge numpy
+RUN conda install -c conda-forge -y --quiet matplotlib
+RUN conda install -c conda-forge -y --quiet argparse
+RUN conda install -c bioconda -y --quiet pysam
+RUN conda install -c conda-forge -y --quiet tqdm
+RUN conda install -c conda-forge -y --quiet numpy
 
 RUN git clone -b dev_skera-pbplots https://github.com/akankshakhorgade/mdl_data_processing_workflow.git
