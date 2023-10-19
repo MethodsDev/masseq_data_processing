@@ -43,3 +43,5 @@ RUN conda install -c conda-forge argparse
 RUN conda install -c bioconda pysam
 RUN conda install -c conda-forge tqdm
 RUN conda install -c conda-forge numpy
+
+RUN git clone -b dev_skera-pbplots https://github.com/akankshakhorgade/mdl_data_processing_workflow.git
