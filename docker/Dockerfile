@@ -36,3 +36,10 @@ RUN curl https://sdk.cloud.google.com | bash
 ENTRYPOINT ["top", "-b"]
 
 ENV PATH=/root/google-cloud-sdk/bin:$PATH
+
+#adding packages to support pb plots
+RUN conda install -c conda-forge matplotlib
+RUN conda install -c conda-forge argparse
+RUN conda install -c bioconda pysam
+RUN conda install -c conda-forge tqdm
+RUN conda install -c conda-forge numpy
