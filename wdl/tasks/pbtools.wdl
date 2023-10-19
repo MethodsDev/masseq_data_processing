@@ -34,18 +34,12 @@ task pbSkera {
         set -euxo pipefail
 
         gsutil -m cp ~{hifi_bam} .
-        touch read_counts.txt
-        #echo ~{hifi_bam} >> read_counts.txt
-        #samtools view -c ~{sample_id}.hifi_reads.bam >> read_counts.txt
-        #echo ~{outdir}skera/~{sample_id}.skera.bam >> read_counts.txt
         gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
         chmod 777 /usr/local/bin/skera
         /usr/local/bin/skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Copying skera out to gcs path provided..."
         gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
-        #samtools view -c ~{sample_id}.skera.bam >> read_counts.txt
-        #gsutil -m cp read_counts.txt ~{outdir}skera/
-
+        echo "Copying skera files completed!"
     >>>
 # ------------------------------------------------
 # Outputs:
