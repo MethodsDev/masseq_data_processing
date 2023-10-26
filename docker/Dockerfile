@@ -7,10 +7,9 @@ ENV CONDA_DIR=/opt/conda
 
 WORKDIR $SRC
 
-
 RUN apt-get update --allow-releaseinfo-change
 RUN apt-get update -m
-RUN apt-get install -y curl git-lfs time datamash wget zlib1g-dev libssl-dev lbzip2 make gcc libbz2-dev libncurses5-dev libncursesw5-dev liblzma-dev
+RUN apt-get install -y curl git-lfs time datamash wget bzip2 zlib1g-dev libssl-dev lbzip2 make gcc libbz2-dev libncurses5-dev libncursesw5-dev liblzma-dev
 
 
 # Install miniconda
@@ -20,11 +19,27 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 # Adding conda in path so we can use conda activate
 ENV PATH=$CONDA_DIR/bin:$PATH
 
+# install gsutil
+RUN curl https://sdk.cloud.google.com | bash
+ENTRYPOINT ["top", "-b"]
+
+ENV PATH=/root/google-cloud-sdk/bin:$PATH
+
+#install skera
+RUN conda install -c bioconda pbskera
+
+# install lima
+RUN conda install -c bioconda lima
+
+# install ISOSEQ
+RUN conda install -c bioconda isoseq
+
 #adding packages to support pb plots
-RUN conda install -c conda-forge -y --quiet matplotlib
-RUN conda install -c conda-forge -y --quiet argparse
-RUN conda install -c bioconda -y --quiet pysam
-RUN conda install -c conda-forge -y --quiet tqdm
-RUN conda install -c conda-forge -y --quiet numpy
+RUN conda install -y matplotlib -c conda-forge
+RUN pip install pysam
+RUN conda install -y tqdm -c conda-forge
+RUN conda install -y numpy -c conda-forge
 
 RUN git clone -b dev_skera-pbplots https://github.com/akankshakhorgade/mdl_data_processing_workflow.git
+
+SHELL ["bash", "-l" ,"-c"]
