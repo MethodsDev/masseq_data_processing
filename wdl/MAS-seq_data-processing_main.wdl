@@ -8,6 +8,7 @@ workflow pb_masseq_workflow {
         File mas_adapters_fasta
         String gcs_output_dir
         String sample_id
+        Int arraysize
 
         # Optional:
         Int num_threads = 20
@@ -17,15 +18,16 @@ workflow pb_masseq_workflow {
         #Int? cpu
         #Int? boot_disk_size_gb
     }
-    call PB.pbSkera{
+    call PB.pbSkerawQC{
         input:
             hifi_bam            = input_bam,
             sample_id           = sample_id,
+            arraysize           = arraysize,
             mas_adapters_fasta  = mas_adapters_fasta,
             num_threads         = num_threads,
             gcs_output_dir      = gcs_output_dir
     }
     output{
-        String out_path         = pbSkera.skera_out
+        String out_path         = pbSkerawQC.skera_out
     }
 }
