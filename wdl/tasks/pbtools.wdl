@@ -96,7 +96,7 @@ task pbLimaBulk {
         File skera_bam
         String sample_id
         File bulk_barcodes_fasta
-        Boolean trimPolyA
+        Boolean trimPolyA = false
         Int num_threads
         String gcs_output_dir
 
