@@ -100,7 +100,7 @@ task pbLimaBulk {
         Boolean trimPolyA = false
         Int num_threads
         String gcs_output_dir
-        File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
+        #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
 
         # Optional:
         Int? mem_gb
