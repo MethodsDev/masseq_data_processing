@@ -134,7 +134,7 @@ task pbLimaBulk {
         do
          echo `basename $i`
          a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
-         ~{isoseq_cmd} $i ./$a.refine.bam
+         ~{isoseq_cmd} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
         echo "Refine completed."
 
