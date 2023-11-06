@@ -14,6 +14,7 @@ task pbSkerawQC {
         Int num_threads
         Int arraysize
         String gcs_output_dir
+        File monitoringScript = ""
 
         # Optional:
         Int? mem_gb
@@ -99,6 +100,7 @@ task pbLimaBulk {
         Boolean trimPolyA = false
         Int num_threads
         String gcs_output_dir
+        File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
 
         # Optional:
         Int? mem_gb
@@ -130,8 +132,8 @@ task pbLimaBulk {
         echo "Running Refine..."
         for i in `ls ./*_5p--3p.bam`;
         do
-         echo $i
-         a=basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'
+         echo `basename $i`
+         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
          ~{isoseq_cmd} $i ./$a.refine.bam
         done
         echo "Refine completed."
