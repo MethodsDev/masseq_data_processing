@@ -97,7 +97,8 @@ task pbLimaBulk {
         File skera_bam
         String sample_id
         File bulk_barcodes_fasta
-        Boolean trimPolyA = false
+        Boolean trimPolyA = true
+        Boolean clipAdapters = true
         Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
@@ -119,10 +120,11 @@ task pbLimaBulk {
     Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
     String isoseq_cmd = if trimPolyA then "isoseq refine --require-polya" else "isoseq refine"
+    String lima_cmd = if clipAdapters then "lima --isoseq --log-level INFO" else "lima --isoseq --no-clip --log-level INFO"
     command <<<
         set -euxo pipefail
         echo "Running lima demux.."
-        lima --isoseq -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{sample_id}.lima.bam
+        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{sample_id}.lima.bam
         echo "Demuxing completed."
 
         echo "Copying output to gcs path provided..."
@@ -163,5 +165,3 @@ task pbLimaBulk {
     }
 
 }
-
-
