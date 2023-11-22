@@ -99,7 +99,7 @@ task pbLimaBulk {
         File bulk_barcodes_fasta
         Boolean trimPolyA = true
         Boolean clipAdapters = true
-        Int num_threads
+        Int num_threads = 16
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
 
@@ -107,7 +107,7 @@ task pbLimaBulk {
         Int? mem_gb
         Int? preemptible_attempts
         Int? disk_space_gb
-        Int? cpu
+        Int cpu = 16
         Int? boot_disk_size_gb
     }
     # Computing required disk size
@@ -135,7 +135,7 @@ task pbLimaBulk {
         for i in `ls ./*_5p--3p.bam`;
         do
          echo `basename $i`
-         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$2"."$4}'`
+         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
         echo $a
          ~{isoseq_cmd} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
@@ -159,6 +159,79 @@ task pbLimaBulk {
         docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
+        bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
+        preemptible: select_first([preemptible_attempts, 0])
+        cpu: select_first([cpu, 2])
+    }
+
+}
+
+task pbRefine {
+    meta {
+        description: "Given tagged reads for single cell data or demuxed bams for bulk data, trims PolyA tails using Isoseq Refine to extract FLNC reads."
+    }
+    # ------------------------------------------------
+    #Inputs required
+    input {
+        # Required:
+        String input_path
+        File primer_fasta
+        Boolean trimPolyA = true
+        Int num_threads = 16
+        String gcs_output_dir
+        #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
+
+        # Optional:
+        Int? mem_gb
+        Int? preemptible_attempts
+        Int? disk_space_gb
+        Int? cpu
+        Int? boot_disk_size_gb
+    }
+    # Computing required disk size
+    Int default_ram = 16
+    Int default_disk_space_gb = 40
+    Int default_boot_disk_size_gb = 40
+
+    # Mem is in units of GB
+    Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
+    String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
+    String isoseq_cmd = if trimPolyA then "isoseq refine --require-polya" else "isoseq refine"
+    command <<<
+        set -euxo pipefail
+
+        echo "Copying FL bams to local..."
+        gsutil -m cp ~{input_path}/* .
+        echo "Copying input bams completed!"
+
+        echo "Running Refine..."
+        for i in `ls ./*_5p--3p.bam`;
+        do
+        echo `basename $i`
+        a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
+        echo $a
+        ~{isoseq_cmd} $i ~{primer_fasta} ./$a.refine.bam
+        done
+        echo "Refine completed."
+
+        echo "Uploading refined bams..."
+        gsutil -m cp *.refine* ~{outdir}refine/
+        echo "Copying extracted FLNC reads completed!"
+
+    >>>
+    # ------------------------------------------------
+    # Outputs:
+    output {
+        # Default output file name:
+        String refine_out        = "~{outdir}refine"
+    }
+
+    # ------------------------------------------------
+    # Runtime settings:
+    runtime {
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        memory: machine_mem + " GiB"
+        disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
         preemptible: select_first([preemptible_attempts, 0])
         cpu: select_first([cpu, 2])

@@ -2,11 +2,10 @@ version 1.0
 
 import "tasks/pbtools.wdl" as PB
 
-workflow masseq_bulk_demux_main {
+workflow pb_masseq_refine {
     input{
-        File input_bam
-        String sample_id
-        File bulk_barcodes_fasta
+        String input_path
+        File primer_fasta
         Boolean trimPolyA
         String gcs_output_dir
 
@@ -18,16 +17,15 @@ workflow masseq_bulk_demux_main {
         Int cpu = 16
         #Int? boot_disk_size_gb
     }
-    call PB.pbLimaBulk{
+    call PB.pbRefine{
         input:
-            skera_bam               = input_bam,
-            sample_id               = sample_id,
+            input_path              = input_path,
             trimPolyA               = trimPolyA,
-            bulk_barcodes_fasta     = bulk_barcodes_fasta,
+            primer_fasta            = primer_fasta,
             num_threads             = num_threads,
             gcs_output_dir          = gcs_output_dir
     }
     output{
-        String out_path         = pbLimaBulk.demux_out
+        String out_path         = pbRefine.refine_out
     }
 }
