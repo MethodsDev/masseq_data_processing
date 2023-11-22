@@ -8,22 +8,20 @@ workflow masseq_bulk_demux_main {
         String sample_id
         File bulk_barcodes_fasta
         Boolean trimPolyA
+        Boolean clipAdapters
         String gcs_output_dir
 
         # Optional:
         Int num_threads = 16
-        #Int? mem_gb
-        #Int? preemptible_attempts
-        #Int? disk_space_gb
-        Int cpu = 16
-        #Int? boot_disk_size_gb
+
     }
     call PB.pbLimaBulk{
         input:
             skera_bam               = input_bam,
             sample_id               = sample_id,
-            trimPolyA               = trimPolyA,
             bulk_barcodes_fasta     = bulk_barcodes_fasta,
+            trimPolyA               = trimPolyA,
+            clipAdapters            = clipAdapters,
             num_threads             = num_threads,
             gcs_output_dir          = gcs_output_dir
     }

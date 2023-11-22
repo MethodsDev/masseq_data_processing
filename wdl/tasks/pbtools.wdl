@@ -19,7 +19,7 @@ task pbSkerawQC {
         Int? mem_gb
         Int? preemptible_attempts
         Int? disk_space_gb
-        Int? cpu
+        Int cpu = num_threads
         Int? boot_disk_size_gb
     }
     # Computing required disk size
@@ -81,7 +81,7 @@ task pbSkerawQC {
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
         preemptible: select_first([preemptible_attempts, 0])
-        cpu: select_first([cpu, 2])
+        cpu: cpu
     }
 
 }
@@ -99,7 +99,7 @@ task pbLimaBulk {
         File bulk_barcodes_fasta
         Boolean trimPolyA = true
         Boolean clipAdapters = true
-        Int num_threads = 16
+        Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
 
@@ -107,7 +107,7 @@ task pbLimaBulk {
         Int? mem_gb
         Int? preemptible_attempts
         Int? disk_space_gb
-        Int cpu = 16
+        Int? cpu
         Int? boot_disk_size_gb
     }
     # Computing required disk size
@@ -137,7 +137,7 @@ task pbLimaBulk {
          echo `basename $i`
          a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
         echo $a
-         ~{isoseq_cmd} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
+         ~{isoseq_cmd} -j ~{num_threads} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
         echo "Refine completed."
 
@@ -161,9 +161,8 @@ task pbLimaBulk {
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
         preemptible: select_first([preemptible_attempts, 0])
-        cpu: select_first([cpu, 2])
+        cpu: select_first([cpu, 4])
     }
-
 }
 
 task pbRefine {
@@ -177,7 +176,7 @@ task pbRefine {
         String input_path
         File primer_fasta
         Boolean trimPolyA = true
-        Int num_threads = 16
+        Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
 
@@ -185,7 +184,7 @@ task pbRefine {
         Int? mem_gb
         Int? preemptible_attempts
         Int? disk_space_gb
-        Int? cpu
+        Int cpu = num_threads
         Int? boot_disk_size_gb
     }
     # Computing required disk size
@@ -210,7 +209,7 @@ task pbRefine {
         echo `basename $i`
         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
         echo $a
-        ~{isoseq_cmd} $i ~{primer_fasta} ./$a.refine.bam
+        ~{isoseq_cmd} -j ~{num_threads} $i ~{primer_fasta} ./$a.refine.bam
         done
         echo "Refine completed."
 
@@ -234,7 +233,7 @@ task pbRefine {
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
         preemptible: select_first([preemptible_attempts, 0])
-        cpu: select_first([cpu, 2])
+        cpu: cpu
     }
 
 }

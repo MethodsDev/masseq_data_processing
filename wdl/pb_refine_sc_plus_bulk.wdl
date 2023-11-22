@@ -11,11 +11,7 @@ workflow pb_masseq_refine {
 
         # Optional:
         Int num_threads = 16
-        #Int? mem_gb
-        #Int? preemptible_attempts
-        #Int? disk_space_gb
-        Int cpu = 16
-        #Int? boot_disk_size_gb
+
     }
     call PB.pbRefine{
         input:
