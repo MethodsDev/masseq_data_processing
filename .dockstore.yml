@@ -1,12 +1,22 @@
-version: 1.2
+version: 1.0
 workflows:
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/skera_w_QCplots.wdl
+    testParameterFiles:
+      - /optional.json
+    name: pbskera_main
   - subclass: WDL
     primaryDescriptorPath: /wdl/masseq_bulk_demux.wdl
     testParameterFiles:
       - /optional.json
     name: bulk_demux
   - subclass: WDL
+    primaryDescriptorPath: /wdl/pb_refine_sc_plus_bulk.wdl
+    testParameterFiles:
+      - /optional.json
+    name: pbrefine_main
+  - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
-    name: pbtools
+    name: pbtools_tasklib
