@@ -1,6 +1,11 @@
 version: 2.0
 workflows:
   - subclass: WDL
+    primaryDescriptorPath: /wdl/MAS-seq_data-processing_main.wdl
+    testParameterFiles:
+      - /optional.json
+    name: main
+  - subclass: WDL
     primaryDescriptorPath: /wdl/skera_w_QCplots.wdl
     testParameterFiles:
       - /optional.json
