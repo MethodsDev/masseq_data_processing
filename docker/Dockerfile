@@ -40,6 +40,4 @@ RUN pip install pysam
 RUN conda install -y tqdm -c conda-forge
 RUN conda install -y numpy -c conda-forge
 
-RUN git clone -b dev_skera-pbplots https://github.com/akankshakhorgade/mdl_data_processing_workflow.git
-
 SHELL ["bash", "-l" ,"-c"]
