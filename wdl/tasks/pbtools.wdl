@@ -135,7 +135,7 @@ task pbLimaBulk {
         for i in `ls ./*_5p--3p.bam`;
         do
          echo `basename $i`
-         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
+         a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
         echo $a
          ~{isoseq_cmd} -j ~{num_threads} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
@@ -207,7 +207,7 @@ task pbRefine {
         for i in `ls ./*_5p--3p.bam`;
         do
         echo `basename $i`
-        a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3"}'`
+        a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
         echo $a
         ~{isoseq_cmd} -j ~{num_threads} $i ~{primer_fasta} ./$a.refine.bam
         done
