@@ -21,7 +21,17 @@ workflows:
       - /optional.json
     name: pbrefine_main
   - subclass: WDL
+    primaryDescriptorPath: /wdl/merge_bulk_by_barcode.wdl
+    testParameterFiles:
+      - /optional.json  
+    name: bulk_merge    
+  - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
     name: pbtools_tasklib
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/tasks/other_utils.wdl
+    testParameterFiles:
+      - /optional.json
+    name: other_tasklib
