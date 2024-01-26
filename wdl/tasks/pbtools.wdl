@@ -12,7 +12,7 @@ task pbSkerawQC {
         String sample_id
         File mas_adapters_fasta
         Int num_threads
-        Int arraysize
+        Int arraysize = 8
         String gcs_output_dir
 
         # Optional:
