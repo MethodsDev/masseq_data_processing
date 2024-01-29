@@ -20,7 +20,7 @@ workflow mergeBulkByBarcodes {
             gcs_output_dir       = gcs_output_dir
     }
     output {
-        String gcs_output_dir       = mergeBulk.gcs_output_dir
+        String gcs_output_dir       = mergeBulk.merge_out,
         File monitoringLog          = "monitoring.log"
 
     }
