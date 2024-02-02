@@ -41,15 +41,16 @@ command <<<
 
     echo "Merging across barcodes..."
     declare -a bc_indexes=('bc01' 'bc02' 'bc03' 'bc04' 'bc05' 'bc06' 'bc07' 'bc08' 'bc09' 'bc10' 'bc11' 'bc12')
-    wd=~{input_dir}
+    mkdir ./merge/
+    chmod 755 ./merge/
     for  bc in ${bc_indexes[@]}
     do
-        samtools merge $wd/merge/$bc.bam `ls $wd/*$bc*.bam`
-        samtools sort -@ ~{cpu} $wd/merge/$bc.bam > $wd/merge/$bc.merged.sorted.bam
-        samtools index -@ ~{cpu} $wd/merge/$bc.merged.sorted.bam
+        samtools merge ./merge/$bc.bam `ls ./*$bc*.bam`
+        samtools sort -@ ~{cpu} ./merge/$bc.bam > ./merge/$bc.merged.sorted.bam
+        samtools index -@ ~{cpu} ./merge/$bc.merged.sorted.bam
     done
     echo "Uploading merged bams..."
-    gsutil -m cp $wd/merge/* ~{outdir}merge/
+    gsutil -m cp ./merge/* ~{outdir}merge/
     gsutil cp monitoring.log ~{outdir}merge/
 
 >>>
