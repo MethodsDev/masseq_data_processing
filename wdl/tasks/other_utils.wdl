@@ -64,7 +64,7 @@ output {
 # ------------------------------------------------
 # Runtime settings:
 runtime {
-    docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+    docker: "us-central1-docker.pkg.dev/methods-dev-lab/lrtools-isoquant/lrtools-isoquant-plus@sha256:bbad9d6cb47bcaa6de76c04d425bd3815d7f4b12f5679dac2eb894aa4ee3f81f"
     memory: machine_mem + " GiB"
     disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
     bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
