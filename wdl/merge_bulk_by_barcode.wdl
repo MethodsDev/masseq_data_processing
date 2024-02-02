@@ -14,7 +14,7 @@ workflow mergeBulkByBarcodes {
     }
     call utils.mergeBulk {
         input:
-            input_dir_path       = input_dir,
+            input_path           = input_dir_path,
             rename               = rename,
             num_threads          = num_threads,
             gcs_output_dir       = gcs_output_dir
