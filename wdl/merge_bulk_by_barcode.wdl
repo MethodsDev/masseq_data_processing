@@ -21,7 +21,7 @@ workflow mergeBulkByBarcodes {
     }
     output {
         String gcs_output_dir       = mergeBulk.merge_out
-        File monitoringLog          = "monitoring.log"
+ #       File monitoringLog          = "monitoring.log"
 
     }
 }
