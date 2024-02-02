@@ -50,6 +50,7 @@ command <<<
     done
     echo "Uploading merged bams..."
     gsutil -m cp $wd/merge/* ~{outdir}merge/
+    gsutil cp monitoring.log ~{outdir}merge/
 
 >>>
 # ------------------------------------------------
@@ -57,7 +58,7 @@ command <<<
 output {
     # Default output file name:
     String merge_out        = "~{outdir}merge"
-    File monitoringLog      = "monitoring.log"
+#    File monitoringLog      = "monitoring.log"
 }
 
 # ------------------------------------------------
