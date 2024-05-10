@@ -21,7 +21,13 @@ workflows:
       - /optional.json
     name: pbrefine_main
   - subclass: WDL
+    primaryDescriptorPath: /wdl/merge_refine_bams.wdl
+    testParameterFiles:
+      - /optional.json
+    name: merge_main
+  - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
     name: pbtools_tasklib
+
