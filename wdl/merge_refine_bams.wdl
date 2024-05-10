@@ -5,6 +5,7 @@ import "tasks/pbtools.wdl" as PB
 workflow merge_replicates {
     input{
         String refine_bams
+        String lima_dir
         File barcode_to_sample
         String samplePlotTitle
         Boolean mergeBams
