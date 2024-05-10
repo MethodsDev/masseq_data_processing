@@ -34,6 +34,9 @@ RUN conda install -c bioconda lima
 # install ISOSEQ
 RUN conda install -c bioconda isoseq
 
+# install samtools
+RUN conda install -c bioconda samtools
+
 # install other dependencies
 RUN conda install pandas
 RUN conda install seaborn
