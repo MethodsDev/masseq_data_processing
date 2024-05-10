@@ -96,9 +96,12 @@ task pbLimaBulk {
         # Required:
         File skera_bam
         String sample_id
+        String samplePlotTitle = "Read counts distribution by sample"
+        File barcode_to_sample
         File bulk_barcodes_fasta
         Boolean trimPolyA = true
         Boolean clipAdapters = true
+        Boolean mergeBams = false 
         Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
@@ -141,10 +144,29 @@ task pbLimaBulk {
          ~{isoseq_cmd} -j ~{num_threads} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
         echo "Refine completed."
+        
+        echo "plot counts and merge"
+        mkdir mergeOut
+        gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/ .
+        python ./mergeBam/mergeBams.py \
+            -idmap ~{barcode_to_sample} \
+            -bampath . \
+            -limacountsdir . \
+            -outdir ./mergeOut \
+            -mergeReplicates \
+            -setTitleSamplePlot ~{samplePlotTitle} 
+
 
         echo "Uploading refined bams..."
         gsutil -m cp ~{sample_id}*refine* ~{outdir}refine/
         echo "Copying extracted FLNC reads completed!"
+
+        gsutil -m cp -r ./merge/ ~{outdir}merge/
+        gsutil cp readcounts_by_sample.png ~{outdir}merge/
+        gsutil cp aggregated_lima_counts_by_sample.tsv ~{outdir}merge/
+        gsutil cp lima_counts_by_moviename.tsv ~{outdir}merge/
+
+        echo "Completed copying merged outs and QC plot. All done"
 
     >>>
     # ------------------------------------------------
@@ -152,6 +174,7 @@ task pbLimaBulk {
     output {
         # Default output file name:
         String demux_out        = "~{outdir}refine"
+        String merge_out        = "~{outdir}merge"
     }
 
     # ------------------------------------------------
