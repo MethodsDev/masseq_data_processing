@@ -96,12 +96,9 @@ task pbLimaBulk {
         # Required:
         File skera_bam
         String sample_id
-        String samplePlotTitle = "Read counts distribution by sample"
-        File barcode_to_sample
         File bulk_barcodes_fasta
         Boolean trimPolyA = true
         Boolean clipAdapters = true
-        Boolean mergeBams = false 
         Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
@@ -144,7 +141,73 @@ task pbLimaBulk {
          ~{isoseq_cmd} -j ~{num_threads} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
         done
         echo "Refine completed."
-        
+
+        echo "Uploading refined bams..."
+        gsutil -m cp ~{sample_id}*refine* ~{outdir}refine/
+        echo "Copying extracted FLNC reads completed!"
+
+    >>>
+    # ------------------------------------------------
+    # Outputs:
+    output {
+        # Default output file name:
+        String demux_out        = "~{outdir}refine"
+    }
+
+    # ------------------------------------------------
+    # Runtime settings:
+    runtime {
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        memory: machine_mem + " GiB"
+        disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
+        bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
+        preemptible: select_first([preemptible_attempts, 0])
+        cpu: select_first([cpu, 4])
+    }
+}
+
+task bulkMerge {
+    meta {
+        description: "Given demuxed refined reads for Bulk samples, collapse replicates if mergeBams set to true else plot counts"
+    }
+    # ------------------------------------------------
+    #Inputs required
+    input {
+        # Required:
+        String refine_bampath
+        String lima_dir
+        String samplePlotTitle = "Read counts distribution by sample" 
+        File barcode_to_sample
+        File bulk_barcodes_fasta
+        Boolean mergeBams = false 
+        Int num_threads
+        String gcs_output_dir
+        #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
+
+        # Optional:
+        Int? mem_gb
+        Int? preemptible_attempts
+        Int? disk_space_gb
+        Int? cpu
+        Int? boot_disk_size_gb
+    }
+    # Computing required disk size
+    #Float input_files_size_gb = 2.5*(size(skera_bam, "GiB"))
+    Int default_ram = 16
+    Int default_disk_space_gb = 500
+    #Int default_disk_space_gb = ceil((2.5 * 1024 * 2) + 1024)
+    Int default_boot_disk_size_gb = 50
+
+    # Mem is in units of GB
+    Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
+    String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
+    
+    command <<<
+        echo "Fetching refined bams to combine replicates..."
+        gsutil -m cp ~{refine_bampath}*refine.bam .
+        echo "Fetching lima counts files.."
+        gsutil -m cp ~{lima_dir}*lima.counts .
+ 
         echo "plot counts and merge"
         mkdir mergeOut
         gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/ .
@@ -156,12 +219,7 @@ task pbLimaBulk {
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
-
-        echo "Uploading refined bams..."
-        gsutil -m cp ~{sample_id}*refine* ~{outdir}refine/
-        echo "Copying extracted FLNC reads completed!"
-
-        gsutil -m cp -r ./merge/ ~{outdir}merge/
+        gsutil -m cp -r ./mergeOut/ ~{outdir}merge/
         gsutil cp readcounts_by_sample.png ~{outdir}merge/
         gsutil cp aggregated_lima_counts_by_sample.tsv ~{outdir}merge/
         gsutil cp lima_counts_by_moviename.tsv ~{outdir}merge/
@@ -173,7 +231,6 @@ task pbLimaBulk {
     # Outputs:
     output {
         # Default output file name:
-        String demux_out        = "~{outdir}refine"
         String merge_out        = "~{outdir}merge"
     }
 
@@ -188,6 +245,7 @@ task pbLimaBulk {
         cpu: select_first([cpu, 4])
     }
 }
+
 
 task pbRefine {
     meta {
