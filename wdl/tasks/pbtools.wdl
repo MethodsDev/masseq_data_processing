@@ -210,8 +210,8 @@ task bulkMerge {
  
         echo "plot counts and merge"
         mkdir mergeOut
-        gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/ .
-        python ./mergeBam/mergeBams.py \
+        gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/mergeBams.py .
+        python mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
