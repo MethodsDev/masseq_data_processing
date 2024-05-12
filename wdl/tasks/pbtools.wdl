@@ -215,7 +215,7 @@ task bulkMerge {
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
-            -outdir . \ 
+            -outdir . \
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
