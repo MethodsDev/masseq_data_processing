@@ -33,12 +33,11 @@ RUN conda install -c bioconda lima
 # install ISOSEQ
 RUN conda install -c bioconda isoseq
 
-# install samtools
-RUN conda install -c bioconda samtools
+# install pysam
+RUN pip install pysam
 
 #adding packages to support pb plots
 RUN conda install -y matplotlib -c conda-forge
-RUN pip install pysam
 RUN conda install -y tqdm -c conda-forge
 RUN conda install -y numpy -c conda-forge
 
