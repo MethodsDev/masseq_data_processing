@@ -209,14 +209,13 @@ task bulkMerge {
         gsutil -m cp ~{lima_dir}*lima.counts .
  
         echo "plot counts and merge"
-       # mkdir mergeOut
-       # ls mergeOut
+
         gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/mergeBams.py .
         python mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
-            -outdir . \ #./mergeOut
+            -outdir . \ 
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
