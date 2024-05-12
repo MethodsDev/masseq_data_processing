@@ -219,7 +219,7 @@ task bulkMerge {
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
-        gsutil -m cp ./merge/* ~{outdir}merge/
+        gsutil -m cp *.merged* ~{outdir}merge/
         gsutil cp readcounts_by_sample.png ~{outdir}merge/
         gsutil cp aggregated_lima_counts_by_sample.tsv ~{outdir}merge/
         gsutil cp lima_counts_by_moviename.tsv ~{outdir}merge/
