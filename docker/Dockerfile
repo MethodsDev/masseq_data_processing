@@ -10,7 +10,7 @@ WORKDIR $SRC
 RUN apt-get update --allow-releaseinfo-change
 RUN apt-get update -m
 RUN apt-get install -y curl git-lfs time datamash wget bzip2 zlib1g-dev libssl-dev lbzip2 make gcc libbz2-dev libncurses5-dev libncursesw5-dev liblzma-dev
-
+RUN apt-get install libtinfo5
 
 # Install miniconda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
