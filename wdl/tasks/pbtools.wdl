@@ -219,7 +219,8 @@ task bulkMerge {
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
-        echo "Uploading merged bams to merge dir..."    
+        echo "Uploading merged bams to merge dir..."  
+        ls -lhrt  
         gsutil -m cp *.merged*.bam ~{outdir}merge/
         gsutil cp readcounts_by_sample.png ~{outdir}merge/
         gsutil cp aggregated_lima_counts_by_sample.tsv ~{outdir}merge/
