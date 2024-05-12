@@ -209,17 +209,18 @@ task bulkMerge {
         gsutil -m cp ~{lima_dir}*lima.counts .
  
         echo "plot counts and merge"
-        mkdir mergeOut
+       # mkdir mergeOut
+       # ls mergeOut
         gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/mergeBams.py .
         python mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
-            -outdir ./mergeOut \
+            -outdir . \ #./mergeOut
             -mergeReplicates \
             -setTitleSamplePlot ~{samplePlotTitle} 
 
-        gsutil -m cp -r ./mergeOut/ ~{outdir}merge/
+        gsutil -m cp *merged* ~{outdir}merge/
         gsutil cp readcounts_by_sample.png ~{outdir}merge/
         gsutil cp aggregated_lima_counts_by_sample.tsv ~{outdir}merge/
         gsutil cp lima_counts_by_moviename.tsv ~{outdir}merge/
