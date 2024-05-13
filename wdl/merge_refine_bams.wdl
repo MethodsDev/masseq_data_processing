@@ -7,7 +7,7 @@ workflow merge_replicates {
         String refine_bams
         String lima_dir
         File barcode_to_sample
-        String samplePlotTitle
+        String datasetId
         Boolean mergeBams
         String gcs_output_dir
 
@@ -20,7 +20,7 @@ workflow merge_replicates {
             refine_bampath      = refine_bams,
             lima_dir            = lima_dir,
             barcode_to_sample   = barcode_to_sample,
-            samplePlotTitle     = samplePlotTitle,
+            datasetId           = datasetId,
             mergeBams           = mergeBams,
             num_threads         = num_threads,
             gcs_output_dir      = gcs_output_dir

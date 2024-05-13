@@ -168,7 +168,7 @@ task pbLimaBulk {
 
 task bulkMerge {
     meta {
-        description: "Given demuxed refined reads for Bulk samples, collapse replicates if mergeBams set to true else plot counts"
+        description: "Given demuxed refined reads for bulk samples, collapse replicates if mergeBams set to true else plot counts"
     }
     # ------------------------------------------------
     #Inputs required
@@ -176,7 +176,7 @@ task bulkMerge {
         # Required:
         String refine_bampath
         String lima_dir
-        String samplePlotTitle = "Read counts distribution by sample" 
+        String? datasetId = "Replicates_merged" 
         File barcode_to_sample
         File bulk_barcodes_fasta
         Boolean mergeBams = false 
@@ -217,7 +217,7 @@ task bulkMerge {
             -limacountsdir . \
             -outdir . \
             -mergeReplicates \
-            -setTitleSamplePlot ~{samplePlotTitle} 
+            -setTitleSamplePlot ~{datasetId} 
 
         echo "Uploading merged bams to merge dir..."  
         ls -lhrt  
