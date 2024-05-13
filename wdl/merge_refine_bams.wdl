@@ -7,7 +7,7 @@ workflow merge_replicates {
         String refine_bams
         String lima_dir
         File barcode_to_sample
-        String datasetId
+        String? datasetId
         Boolean mergeBams
         String gcs_output_dir
 
