@@ -260,7 +260,7 @@ task pbSingleCell {
         String skera_bam
         String sample_id
         File primer_fasta
-        String 10x_barcodes_list
+        String barcodes_list
         String read_design
         Boolean trimPolyA = true
         Boolean clipAdapters = true 
@@ -291,7 +291,7 @@ task pbSingleCell {
         set -euxo pipefail
 
          echo "Running lima demux.."
-        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{sample_id}.lima.bam
+        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{primer_fasta} ~{sample_id}.lima.bam
         echo "Demuxing completed."
 
         echo "Copying output to gcs path provided..."
@@ -309,7 +309,7 @@ task pbSingleCell {
            echo "refining.."
            ~{isoseq_cmd} -j ~{num_threads} ./$a.tagged.bam ~{primer_fasta} ./$a.refine.bam
            echo "correcting.."
-           isoseq3 correct --barcodes ~{10x_barcodes_list} -j ~{num_threads} ./$a.refine.bam ./$a.corrected.bam 
+           isoseq3 correct --barcodes ~{barcodes_list} -j ~{num_threads} ./$a.refine.bam ./$a.corrected.bam 
            echo "Done for this id!"
         done
         echo "All completed."

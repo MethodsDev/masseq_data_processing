@@ -7,7 +7,7 @@ workflow pb_sc_lima_isoseq {
         String skera_bam
         String sample_id
         File primer_fasta
-        String 10x_barcodes_list
+        String barcodes_list
         String read_design
         Boolean trimPolyA = true
         Boolean clipAdapters = true 
@@ -24,7 +24,7 @@ workflow pb_sc_lima_isoseq {
             trimPolyA               = trimPolyA,
             clipAdapters            = clipAdapters, 
             primer_fasta            = primer_fasta,
-            10x_barcodes_list       = 10x_barcodes_list,
+            barcodes_list           = barcodes_list,
             read_design             = read_design, 
             num_threads             = num_threads,
             gcs_output_dir          = gcs_output_dir
