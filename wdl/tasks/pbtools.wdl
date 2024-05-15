@@ -249,17 +249,21 @@ task bulkMerge {
 }
 
 
-task pbRefine {
+task pbSingleCell {
     meta {
-        description: "Given tagged reads for single cell data or demuxed bams for bulk data, trims PolyA tails using Isoseq Refine to extract FLNC reads."
+        description: "Given s-reads, performs all operations from lima and isoseq pipelines."
     }
     # ------------------------------------------------
     #Inputs required
     input {
         # Required:
-        String input_path
+        String skera_bam
+        String sample_id
         File primer_fasta
+        String 10x_barcodes_list
+        String read_design
         Boolean trimPolyA = true
+        Boolean clipAdapters = true 
         Int num_threads
         String gcs_output_dir
         #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
@@ -271,48 +275,69 @@ task pbRefine {
         Int cpu = num_threads
         Int? boot_disk_size_gb
     }
-    # Computing required disk size
-    Int default_ram = 16
-    Int default_disk_space_gb = 40
-    Int default_boot_disk_size_gb = 40
+
+     # Computing required disk size
+    Float input_files_size_gb = 2.5*(size(skera_bam, "GiB"))
+    Int default_ram = 32
+    Int default_disk_space_gb = ceil((input_files_size_gb * 5) + 1024)
+    Int default_boot_disk_size_gb = 50
 
     # Mem is in units of GB
     Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
     String isoseq_cmd = if trimPolyA then "isoseq refine --require-polya" else "isoseq refine"
+    String lima_cmd = if clipAdapters then "lima --isoseq --log-level INFO" else "lima --isoseq --no-clip --log-level INFO"
     command <<<
         set -euxo pipefail
 
-        echo "Copying FL bams to local..."
-        gsutil -m cp ~{input_path}/* .
-        echo "Copying input bams completed!"
+         echo "Running lima demux.."
+        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{sample_id}.lima.bam
+        echo "Demuxing completed."
 
-        echo "Running Refine..."
+        echo "Copying output to gcs path provided..."
+        gsutil -m cp ~{sample_id}*lima* ~{outdir}lima/
+        echo "Copying lima files completed!"
+
+        echo "Running Tag, Refine and Correct..."
         for i in `ls ./*_5p--3p.bam`;
         do
-        echo `basename $i`
-        a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
-        echo $a
-        ~{isoseq_cmd} -j ~{num_threads} $i ~{primer_fasta} ./$a.refine.bam
+           echo `basename $i`
+           a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
+           echo $a
+           echo "tagging.."
+           isoseq tag --design ~{read_design} -j ~{num_threads} $i ./$a.tagged.bam 
+           echo "refining.."
+           ~{isoseq_cmd} -j ~{num_threads} ./$a.tagged.bam ~{primer_fasta} ./$a.refine.bam
+           echo "correcting.."
+           isoseq3 correct --barcodes ~{10x_barcodes_list} -j ~{num_threads} ./$a.refine.bam ./$a.corrected.bam 
+           echo "Done for this id!"
         done
-        echo "Refine completed."
+        echo "All completed."
+
+        echo "Uploading tagged bams..."
+        gsutil -m cp *.tagged* ~{outdir}tag/
+        echo "Copying extracted tagged reads completed!" 
 
         echo "Uploading refined bams..."
         gsutil -m cp *.refine* ~{outdir}refine/
-        echo "Copying extracted FLNC reads completed!"
+        echo "Copying refined reads completed!"
+
+        echo "Uploading corrected bams..."
+        gsutil -m cp *.corrected* ~{outdir}correct/
+        echo "Copying corrected reads completed!"  
 
     >>>
     # ------------------------------------------------
     # Outputs:
     output {
         # Default output file name:
-        String refine_out        = "~{outdir}refine"
+        String corrected_reads_out  =  "~{outdir}correct"
     }
 
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])

@@ -26,6 +26,11 @@ workflows:
       - /optional.json
     name: merge_main
   - subclass: WDL
+    primaryDescriptorPath: /wdl/pb_sc_lima_plus_isoseq.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_kinnex_lima_plus_isoseq    
+  - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:
       - /optional.json
