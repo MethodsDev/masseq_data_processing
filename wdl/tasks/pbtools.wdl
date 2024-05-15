@@ -257,10 +257,10 @@ task pbSingleCell {
     #Inputs required
     input {
         # Required:
-        String skera_bam
+        File skera_bam
         String sample_id
         File primer_fasta
-        String barcodes_list
+        File barcodes_list
         String read_design
         Boolean trimPolyA = true
         Boolean clipAdapters = true 
