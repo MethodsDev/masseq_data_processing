@@ -300,10 +300,10 @@ task pbSingleCell {
         echo "Copying lima files completed!"
 
         echo "Running Tag, Refine and Correct..."
-        for i in `ls ./*_5p--3p.bam`;
+        for i in `ls ./*.5p--3p.bam`;
         do
            echo `basename $i`
-           a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
+           a=`basename $i | awk -v FS='.5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
            echo $a
            echo "tagging.."
            isoseq tag --design ~{read_design} -j ~{num_threads} $i ./$a.tagged.bam 
