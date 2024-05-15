@@ -290,8 +290,9 @@ task pbSingleCell {
     command <<<
         set -euxo pipefail
 
-         echo "Running lima demux.."
-        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{primer_fasta} ~{sample_id}.lima.bam
+        gsutil -m cp ~{skera_bam} .
+        echo "Running lima demux.."
+        ~{lima_cmd} -j ~{num_threads} *.skera.bam ~{primer_fasta} ~{sample_id}.lima.bam
         echo "Demuxing completed."
 
         echo "Copying output to gcs path provided..."
