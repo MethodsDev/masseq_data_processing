@@ -331,7 +331,7 @@ task pbSingleCell {
     # Outputs:
     output {
         # Default output file name:
-        String corrected_reads_out  =  "~{outdir}correct"
+        String corrected_reads  =  "~{outdir}correct"
     }
 
     # ------------------------------------------------
