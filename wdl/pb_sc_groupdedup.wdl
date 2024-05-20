@@ -7,7 +7,6 @@ workflow sc_dedup {
         File input_bam
         String sample_id
         Boolean keep_non_real_cells = true
-        Int num_threads
         String gcs_output_dir
 
         # Optional:
