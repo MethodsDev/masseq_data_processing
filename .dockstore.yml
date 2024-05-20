@@ -29,7 +29,12 @@ workflows:
     primaryDescriptorPath: /wdl/pb_sc_lima_plus_isoseq.wdl
     testParameterFiles:
       - /optional.json
-    name: sc_kinnex_lima_plus_isoseq    
+    name: sc_kinnex_lima_plus_isoseq   
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/pb_sc_groupdedup.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_isoseq_groupdedup     
   - subclass: WDL
     primaryDescriptorPath: /wdl/tasks/pbtools.wdl
     testParameterFiles:

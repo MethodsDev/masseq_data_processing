@@ -248,7 +248,6 @@ task bulkMerge {
     }
 }
 
-
 task pbSingleCell {
     meta {
         description: "Given s-reads, performs all operations from lima and isoseq pipelines."
@@ -333,6 +332,74 @@ task pbSingleCell {
     output {
         # Default output file name:
         String corrected_reads  =  "~{outdir}correct"
+    }
+
+    # ------------------------------------------------
+    # Runtime settings:
+    runtime {
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        memory: machine_mem + " GiB"
+        disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
+        bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
+        preemptible: select_first([preemptible_attempts, 0])
+        cpu: cpu
+    }
+
+}
+
+task pbGroupdedup {
+    meta {
+        description: "Given merged, sorted bams, performs isoseq groupdededup pipelines."
+    }
+    # ------------------------------------------------
+    #Inputs required
+    input {
+        # Required:
+        File input_bam
+        String sample_id
+        Boolean keep_non_real_cells = true
+        Int num_threads
+        String gcs_output_dir
+        #File monitoringScript = "gs://broad-dsde-methods-tbrookin/cromwell_monitoring_script2.sh"
+
+        # Optional:
+        Int? mem_gb
+        Int? preemptible_attempts
+        Int? disk_space_gb
+        Int cpu = num_threads
+        Int? boot_disk_size_gb
+    }
+
+     # Computing required disk size
+    Float input_files_size_gb = 2.5*(size(input_bam, "GiB"))
+    Int default_ram = 32
+    Int default_disk_space_gb = ceil((input_files_size_gb * 2) + 1024)
+    Int default_boot_disk_size_gb = 50
+
+    # Mem is in units of GB
+    Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
+    String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
+    String isoseq_cmd = if keep_non_real_cells then "isoseq groupdedup --keep-non-real-cells" else "isoseq groupdedup"
+
+    command <<<
+        set -euxo pipefail
+
+        echo "Running groupdedup.."
+        ~{isoseq_cmd} -j ~{num_threads} ~{input_bam} ~{sample_id}.dedup.bam
+        echo "Deduping completed."
+
+        echo "Uploading deduped bams..."
+        gsutil -m cp *.dedup* ~{outdir}groupdedup/
+        echo "Copying extracted tagged reads completed!" 
+
+
+    >>>
+    # ------------------------------------------------
+    # Outputs:
+    output {
+        # Default output file name:
+        String dedup_out = "~{outdir}groupdedup"        
+        File deduped_bam  =  "~{sample_id}.dedup.bam"
     }
 
     # ------------------------------------------------
