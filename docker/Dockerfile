@@ -11,6 +11,13 @@ RUN apt-get update --allow-releaseinfo-change
 RUN apt-get update -m
 RUN apt-get install -y curl git-lfs time datamash wget bzip2 zlib1g-dev libssl-dev lbzip2 make gcc libbz2-dev libncurses5-dev libncursesw5-dev liblzma-dev
 
+## Install Samtools
+ENV SAMTOOLS_VERSION 1.13
+RUN wget https://github.com/samtools/samtools/releases/download/${SAMTOOLS_VERSION}/samtools-${SAMTOOLS_VERSION}.tar.bz2 && \
+    tar xvf samtools-${SAMTOOLS_VERSION}.tar.bz2 && \
+    cd samtools-${SAMTOOLS_VERSION} && \
+    ./configure && make && make install
+
 # Install miniconda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     bash ~/miniconda.sh -b -p /opt/conda
@@ -20,8 +27,6 @@ ENV PATH=$CONDA_DIR/bin:$PATH
 
 # install gsutil
 RUN curl https://sdk.cloud.google.com | bash
-ENTRYPOINT ["top", "-b"]
-
 ENV PATH=/root/google-cloud-sdk/bin:$PATH
 
 #install skera
@@ -44,5 +49,3 @@ RUN conda install -y numpy -c conda-forge
 # install other dependencies
 RUN conda install pandas -c conda-forge
 RUN conda install seaborn -c conda-forge
-
-SHELL ["bash", "-l" ,"-c"]
