@@ -34,10 +34,10 @@ task pbSkerawQC {
     command <<<
         set -euxo pipefail
 
-        gsutil -m cp ~{hifi_bam} .
-        gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
-        chmod 777 /usr/local/bin/skera
-        /usr/local/bin/skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
+        #gsutil -m cp ~{hifi_bam} .
+        #gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
+        #chmod 777 /usr/local/bin/skera
+        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
         echo "Skera split completed!"
 
         echo "Generating QC plots.."
@@ -70,13 +70,13 @@ task pbSkerawQC {
     # Outputs:
     output {
         # Default output file name:
-        String skera_out        = "~{outdir}skera/~{sample_id}.skera.bam"
+        File skera_out        = "~{outdir}skera/~{sample_id}.skera.bam"
     }
 
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
