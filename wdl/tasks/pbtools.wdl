@@ -70,7 +70,7 @@ task pbSkerawQC {
     # Outputs:
     output {
         # Default output file name:
-        File skera_out        = "~{outdir}skera/~{sample_id}.skera.bam"
+        File skera_out        = "~{sample_id}.skera.bam"
     }
 
     # ------------------------------------------------
