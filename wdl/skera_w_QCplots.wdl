@@ -7,7 +7,7 @@ workflow pb_masseq_skera {
         File input_bam
         File mas_adapters_fasta
         String gcs_output_dir
-        String sample_id
+        String? sample_id
         Int arraysize
 
         # Optional:

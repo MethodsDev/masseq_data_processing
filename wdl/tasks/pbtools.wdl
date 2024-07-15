@@ -9,7 +9,7 @@ task pbSkerawQC {
     input {
         # Required:
         File hifi_bam
-        String sample_id
+        String? sample_id
         File mas_adapters_fasta
         Int num_threads
         Int arraysize = 8
@@ -29,48 +29,54 @@ task pbSkerawQC {
     Int default_boot_disk_size_gb = 25
 
     # Mem is in units of GB
-    Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
+    Int machine_mem = select_first([mem_gb,default_ram])
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
+
     command <<<
         set -euxo pipefail
-
-        #gsutil -m cp ~{hifi_bam} .
-        #gsutil cp gs://mdl_terra_sandbox/tools/skera /usr/local/bin/
-        #chmod 777 /usr/local/bin/skera
-        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ~{sample_id}.skera.bam
+        
+        if [defined ~{sample_id}]; then
+            skera_id=~{sample_id} 
+        else 
+            skera_id=`basename ~{hifi_bam} | sed -e 's/.hifi_reads//g' -e 's/.bam//g'`
+        
+        echo "skera split intiated.."
+        echo ${skera_id}
+        
+        skera split -j ~{num_threads} ~{hifi_bam} ~{mas_adapters_fasta} ${skera_id}.skera.bam
         echo "Skera split completed!"
 
         echo "Generating QC plots.."
         gsutil -m cp -r gs://mdl_terra_sandbox/tools/pb_plots/ .
 
         python ./pb_plots/plot_concat_hist.py \
-        --csv ~{sample_id}.skera.read_lengths.csv \
+        --csv skera_id.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
-        --output ~{sample_id}.concat_hist.png
+        --output ${skera_id}.concat_hist.png
 
         python ./pb_plots/plot_readlen_hist.py \
-        --csv ~{sample_id}.skera.read_lengths.csv \
+        --csv ${skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
-        --output ~{sample_id}.readlen_hist.png
+        --output ${skera_id}.readlen_hist.png
 
         python ./pb_plots/plot_ligation_heatmap.py \
-        --csv ~{sample_id}.skera.ligations.csv \
+        --csv ${skera_id}.skera.ligations.csv \
         --arraysize ~{arraysize} \
-        --output ~{sample_id}.ligations_heatmap.png
+        --output ${skera_id}.ligations_heatmap.png
 
         echo "Copying output to gcs path provided..."
-        gsutil -m cp ~{sample_id}.skera.* ~{outdir}skera/
+        gsutil -m cp ${skera_id}.skera.* ~{outdir}skera/
         echo "Copying skera files completed!"
 
         echo "Copying plots to gcs path QC_plots..."
-        gsutil -m cp ~{sample_id}*.png ~{outdir}QC_plots/
+        gsutil -m cp ${skera_id}*.png ~{outdir}QC_plots/
         echo "Copying completed!"
     >>>
     # ------------------------------------------------
     # Outputs:
     output {
         # Default output file name:
-        File skera_out        = "~{sample_id}.skera.bam"
+        File skera_out        = "*.skera.bam"
     }
 
     # ------------------------------------------------
@@ -377,7 +383,7 @@ task pbGroupdedup {
     Int default_boot_disk_size_gb = 50
 
     # Mem is in units of GB
-    Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
+    Int machine_mem = select_first([mem_gb,default_ram]) 
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
     String isoseq_cmd = if keep_non_real_cells then "isoseq groupdedup --keep-non-real-cells" else "isoseq groupdedup"
 
