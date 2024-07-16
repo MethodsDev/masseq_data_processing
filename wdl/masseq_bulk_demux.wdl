@@ -5,7 +5,7 @@ import "tasks/pbtools.wdl" as PB
 workflow masseq_bulk_demux_main {
     input{
         File input_bam
-        String sample_id
+        String? sample_id
         File bulk_barcodes_fasta
         Boolean trimPolyA
         Boolean clipAdapters
@@ -26,6 +26,7 @@ workflow masseq_bulk_demux_main {
             gcs_output_dir          = gcs_output_dir
     }
     output{
-        String out_path         = pbLimaBulk.demux_out
+        String refine_out   = pbLimaBulk.refine_out
+        String lima_out     = pbLimaBulk.lima_out    
     }
 }

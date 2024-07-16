@@ -96,7 +96,7 @@ task pbLimaBulk {
     input {
         # Required:
         File skera_bam
-        String sample_id
+        String? sample_id
         File bulk_barcodes_fasta
         Boolean trimPolyA = true
         Boolean clipAdapters = true
