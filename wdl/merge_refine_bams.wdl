@@ -4,8 +4,8 @@ import "tasks/pbtools.wdl" as PB
 
 workflow merge_replicates {
     input{
-        String refine_bams
-        String lima_dir
+        String refine_out
+        String lima_out
         File barcode_to_sample
         String? datasetId
         Boolean mergeBams
@@ -17,8 +17,8 @@ workflow merge_replicates {
     }
     call PB.bulkMerge{
         input:
-            refine_bampath      = refine_bams,
-            lima_dir            = lima_dir,
+            refine_bampath      = refine_out,
+            lima_dir            = lima_out,
             barcode_to_sample   = barcode_to_sample,
             datasetId           = datasetId,
             mergeBams           = mergeBams,
