@@ -125,6 +125,7 @@ task pbLimaBulk {
     String skera_id = if defined(sample_id) then sample_id else basename(skera_bam,".skera.bam")
     command <<<
         set -euxo pipefail
+        
         echo "Running lima demux.."
         ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{skera_id}.lima.bam
         echo "Demuxing completed."
@@ -207,6 +208,8 @@ task bulkMerge {
     String limadir = sub(sub( lima_dir + "/", "/+", "/"), "gs:/", "gs://")
 
     command <<<
+        set -euxo pipefail
+
         echo "Fetching refined bams to combine replicates..."
         gsutil -m cp ~{refinedir}*refine.bam .
         echo "Fetching lima counts files.."
