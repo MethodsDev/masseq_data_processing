@@ -122,21 +122,21 @@ task pbLimaBulk {
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
     String isoseq_cmd = if trimPolyA then "isoseq refine --require-polya" else "isoseq refine"
     String lima_cmd = if clipAdapters then "lima --isoseq --log-level INFO" else "lima --isoseq --no-clip --log-level INFO"
+    String skera_id = if defined(sample_id) then sample_id else basename(skera_bam,".skera.bam")
     command <<<
         set -euxo pipefail
         echo "Running lima demux.."
-        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{sample_id}.lima.bam
+        ~{lima_cmd} -j ~{num_threads} ~{skera_bam} ~{bulk_barcodes_fasta} ~{skera_id}.lima.bam
         echo "Demuxing completed."
 
         echo "Copying output to gcs path provided..."
-        gsutil -m cp ~{sample_id}*lima* ~{outdir}lima/
+        gsutil -m cp ~{skera_id}*lima* ~{outdir}lima/
         echo "Copying lima files completed!"
 
         echo "Running Refine..."
         for i in `ls ./*_5p--3p.bam`;
         do
          echo `basename $i`
-         #a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.' '{print $1"."$3}'`
          a=`basename $i | awk -v FS='_5p--3p.bam' '{print $1}' | awk -v FS='.lima.' '{print $1"."$2}'`
         echo $a
          ~{isoseq_cmd} -j ~{num_threads} $i ~{bulk_barcodes_fasta} ./$a.refine.bam
@@ -144,7 +144,7 @@ task pbLimaBulk {
         echo "Refine completed."
 
         echo "Uploading refined bams..."
-        gsutil -m cp ~{sample_id}*refine* ~{outdir}refine/
+        gsutil -m cp ~{skera_id}*refine* ~{outdir}refine/
         echo "Copying extracted FLNC reads completed!"
 
     >>>
@@ -152,7 +152,8 @@ task pbLimaBulk {
     # Outputs:
     output {
         # Default output file name:
-        String demux_out        = "~{outdir}refine"
+        refine_out  = "~{outdir}refine"
+        lima_out    = "~{outdir}lima"
     }
 
     # ------------------------------------------------
@@ -202,12 +203,14 @@ task bulkMerge {
     # Mem is in units of GB
     Int machine_mem = if defined(mem_gb) then mem_gb else default_ram
     String outdir = sub(sub( gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
-    
+    String refinedir = sub(sub( refine_bampath + "/", "/+", "/"), "gs:/", "gs://")
+    String limadir = sub(sub( lima_dir + "/", "/+", "/"), "gs:/", "gs://")
+
     command <<<
         echo "Fetching refined bams to combine replicates..."
-        gsutil -m cp ~{refine_bampath}*refine.bam .
+        gsutil -m cp ~{refinedir}*refine.bam .
         echo "Fetching lima counts files.."
-        gsutil -m cp ~{lima_dir}*lima.counts .
+        gsutil -m cp ~{limadir}*lima.counts .
  
         echo "plot counts and merge"
 
