@@ -152,8 +152,8 @@ task pbLimaBulk {
     # Outputs:
     output {
         # Default output file name:
-        refine_out  = "~{outdir}refine"
-        lima_out    = "~{outdir}lima"
+        String refine_out  = "~{outdir}refine"
+        String lima_out    = "~{outdir}lima"
     }
 
     # ------------------------------------------------
