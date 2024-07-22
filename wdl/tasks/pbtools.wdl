@@ -42,7 +42,6 @@ task pbSkerawQC {
         echo "Skera split completed!"
 
         echo "Generating QC plots.."
-        gsutil -m cp -r gs://mdl_terra_sandbox/tools/pb_plots/ .
 
         python ./pb_plots/plot_concat_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
@@ -217,8 +216,7 @@ task bulkMerge {
  
         echo "plot counts and merge"
 
-        gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/mergeBams.py .
-        python mergeBams.py \
+        python ./pb_plots/mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
