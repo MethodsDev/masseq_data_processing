@@ -43,17 +43,17 @@ task pbSkerawQC {
 
         echo "Generating QC plots.."
 
-        python ./pb_plots/plot_concat_hist.py \
+        python ./masseq_data_processing/pb_plots/plot_concat_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.concat_hist.png
 
-        python ./pb_plots/plot_readlen_hist.py \
+        python ./masseq_data_processing/pb_plots/plot_readlen_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.readlen_hist.png
 
-        python ./pb_plots/plot_ligation_heatmap.py \
+        python ./masseq_data_processing/pb_plots/plot_ligation_heatmap.py \
         --csv ~{skera_id}.skera.ligations.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.ligations_heatmap.png
@@ -76,7 +76,7 @@ task pbSkerawQC {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -159,7 +159,7 @@ task pbLimaBulk {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -216,7 +216,7 @@ task bulkMerge {
  
         echo "plot counts and merge"
 
-        python ./pb_plots/mergeBams.py \
+        python ./masseq_data_processing/pb_plots/mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
@@ -244,7 +244,7 @@ task bulkMerge {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
