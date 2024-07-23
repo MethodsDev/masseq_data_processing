@@ -43,17 +43,17 @@ task pbSkerawQC {
 
         echo "Generating QC plots.."
 
-        python ./masseq_data_processing/pb_plots/plot_concat_hist.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_concat_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.concat_hist.png
 
-        python ./masseq_data_processing/pb_plots/plot_readlen_hist.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_readlen_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.readlen_hist.png
 
-        python ./masseq_data_processing/pb_plots/plot_ligation_heatmap.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_ligation_heatmap.py \
         --csv ~{skera_id}.skera.ligations.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.ligations_heatmap.png
@@ -216,7 +216,7 @@ task bulkMerge {
  
         echo "plot counts and merge"
 
-        python ./masseq_data_processing/pb_plots/mergeBams.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
