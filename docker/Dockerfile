@@ -49,7 +49,7 @@ RUN conda install -y tqdm -c conda-forge
 RUN conda install -y numpy -c conda-forge
 
 # install other dependencies
-RUN conda install pandas -c conda-forge
-RUN conda install seaborn -c conda-forge
+RUN conda install -y pandas -c conda-forge
+RUN conda install -y seaborn -c conda-forge
 
 RUN git clone -b mergeBamUpdated https://github.com/MethodsDev/masseq_data_processing.git
