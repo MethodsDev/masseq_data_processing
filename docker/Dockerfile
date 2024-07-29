@@ -32,13 +32,13 @@ RUN curl https://sdk.cloud.google.com | bash
 ENV PATH=/root/google-cloud-sdk/bin:$PATH
 
 #install skera
-RUN conda install -c bioconda pbskera
+RUN conda install -y pbskera -c bioconda
 
 # install lima
-RUN conda install -c bioconda lima
+RUN conda install -y lima -c bioconda
 
 # install ISOSEQ
-RUN conda install -c bioconda isoseq
+RUN conda install -y isoseq -c bioconda
 
 # install pysam
 RUN pip install pysam
