@@ -76,7 +76,7 @@ task pbSkerawQC {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -159,7 +159,7 @@ task pbLimaBulk {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -244,7 +244,7 @@ task bulkMerge {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_test:latest"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -342,7 +342,7 @@ task pbSingleCell {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -410,7 +410,7 @@ task pbGroupdedup {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
