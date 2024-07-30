@@ -44,8 +44,8 @@ def parse_args():
         help='Array size [15]'
     )
     parser.add_argument(
-        '--xmax', '-x', type=int, default=25000,
-        help='Manually set x-axis limit [25000]'
+        '--xmax', '-x', type=int, default=35000,
+        help='Manually set x-axis limit [35000]'
     )
     parser.add_argument(
         '--bam', '-b', type=str,

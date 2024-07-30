@@ -42,19 +42,18 @@ task pbSkerawQC {
         echo "Skera split completed!"
 
         echo "Generating QC plots.."
-        gsutil -m cp -r gs://mdl_terra_sandbox/tools/pb_plots/ .
 
-        python ./pb_plots/plot_concat_hist.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_concat_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.concat_hist.png
 
-        python ./pb_plots/plot_readlen_hist.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_readlen_hist.py \
         --csv ~{skera_id}.skera.read_lengths.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.readlen_hist.png
 
-        python ./pb_plots/plot_ligation_heatmap.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/plot_ligation_heatmap.py \
         --csv ~{skera_id}.skera.ligations.csv \
         --arraysize ~{arraysize} \
         --output ~{skera_id}.ligations_heatmap.png
@@ -160,7 +159,7 @@ task pbLimaBulk {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag4"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -217,8 +216,7 @@ task bulkMerge {
  
         echo "plot counts and merge"
 
-        gsutil -m cp -r gs://mdl_terra_sandbox/tools/mergeBam/mergeBams.py .
-        python mergeBams.py \
+        python /usr/local/src/masseq_data_processing/pb_plots/mergeBams.py \
             -idmap ~{barcode_to_sample} \
             -bampath . \
             -limacountsdir . \
@@ -246,7 +244,7 @@ task bulkMerge {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " HDD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -344,7 +342,7 @@ task pbSingleCell {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
@@ -412,7 +410,7 @@ task pbGroupdedup {
     # ------------------------------------------------
     # Runtime settings:
     runtime {
-        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:tag5"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
         memory: machine_mem + " GiB"
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
