@@ -106,7 +106,7 @@ def lima_cnt_combine(dirpath, opath, idmap_df):
     cdfm.to_csv(os.path.join(opath,"lima_counts_by_moviename.tsv"),sep='\t', index=False)  
 
     # aggregate counts for replicates assuming these are technical replicates - prepped using same barcodes across multiple flowcells
-    agg_bybcs_df=cdfm.groupby(['sample_id','kinnex_adapter','isoseq_primer'])['counts'].agg('sum')
+    agg_bybcs_df=cdfm.groupby(['sample_id','kinnex_adapter','isoseq_primer'])['Counts'].agg('sum')
     agg_bybcs_dff=agg_bybcs_df.reset_index()
     print(agg_bybcs_dff)
     print(' Write out aggregated_lima_counts_by_sample.tsv to...')
@@ -127,7 +127,7 @@ def plot_counts(cntpath, opath, plt_title_str="Read counts distribution by sampl
     tc=pd.read_csv(cntpath, sep='\t')
     tc.head()
     fig, ax = plt.subplots(figsize=(9,4))
-    sns.scatterplot(x="sample_id", y="counts", data=tc.sort_values(by=['kinnex_adapter']),  hue="kinnex_adapter", palette='colorblind').tick_params(axis='x', rotation=90)
+    sns.scatterplot(x="sample_id", y="Counts", data=tc.sort_values(by=['kinnex_adapter']),  hue="kinnex_adapter", palette='colorblind').tick_params(axis='x', rotation=90)
     plt.grid(color='grey', linestyle='-', linewidth=0.2)
     ax.set(xlabel="Sample name", ylabel=" Read Counts", title=plt_title_str)
     plt.savefig(os.path.join(opath,"readcounts_by_sample.png"), dpi=300, bbox_inches = "tight")
