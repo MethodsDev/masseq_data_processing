@@ -191,6 +191,7 @@ def plot_concat(len_to_concat, output, arraysize, xmax):
     h.set_xlabel('Read length, bp')
     h.set_ylabel('Number of Reads')
     h.set_xticks(range(0, xmax+binsize, binsize*10))
+    h.set_xticklabels(range(0, xmax+binsize, binsize*10), rotation=45, ha='right', rotation_mode='anchor')
 
     # legend
     for idx, c in enumerate(colors):
