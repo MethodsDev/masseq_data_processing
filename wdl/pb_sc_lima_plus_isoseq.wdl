@@ -30,7 +30,7 @@ workflow pb_sc_lima_isoseq {
             gcs_output_dir          = gcs_output_dir
     }
     output{
-        String corrected_reads        = pbSingleCell.corrected_reads
+        File corrected_reads        = pbSingleCell.corrected_reads
     }
 }
 
