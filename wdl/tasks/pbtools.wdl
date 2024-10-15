@@ -314,7 +314,7 @@ task pbSingleCell {
            echo "refining.."
            ~{isoseq_cmd} -j ~{num_threads} ./$a.tagged.bam ~{primer_fasta} ./$a.refine.bam
            echo "correcting.."
-           isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ./$a.refine.bam ./$a.corrected.bam 
+           isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ./$a.refine.bam ./~{sample_id}.corrected.bam 
            echo "Done for this id!"
         done
         echo "All completed."
@@ -336,7 +336,7 @@ task pbSingleCell {
     # Outputs:
     output {
         # Default output file name:
-        String corrected_reads  =  "~{outdir}correct"
+        File corrected_reads  =  "~{sample_id}.corrected.bam"
     }
 
     # ------------------------------------------------
