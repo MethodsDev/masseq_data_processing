@@ -391,7 +391,7 @@ task pbGroupdedup {
         set -euxo pipefail
 
         echo "Sorting by barcode.."
-        samtools sort -t CB -@ ~{num_threads} ~{input_bam} ~{sample_id}.corrected.sorted.bam
+        samtools sort -t CB -@ ~{num_threads} ~{input_bam} -o ~{sample_id}.corrected.sorted.bam
 
         echo "Running groupdedup.."
         ~{isoseq_cmd} -j ~{num_threads} ~{sample_id}.corrected.sorted.bam ~{sample_id}.dedup.bam
