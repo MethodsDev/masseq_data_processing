@@ -370,6 +370,7 @@ task pbGroupdedup {
         # Optional:
         Int? mem_gb
         Int? preemptible_attempts
+        Int? max_retries
         Int? disk_space_gb
         Int cpu = num_threads
         Int? boot_disk_size_gb
@@ -389,8 +390,11 @@ task pbGroupdedup {
     command <<<
         set -euxo pipefail
 
+        echo "Sorting by barcode.."
+        samtools sort -t CB -@ ~{num_threads} ~{input_bam} ~{sample_id}.corrected.sorted.bam
+
         echo "Running groupdedup.."
-        ~{isoseq_cmd} -j ~{num_threads} ~{input_bam} ~{sample_id}.dedup.bam
+        ~{isoseq_cmd} -j ~{num_threads} ~{sample_id}.corrected.sorted.bam ~{sample_id}.dedup.bam
         echo "Deduping completed."
 
         echo "Uploading deduped bams..."
@@ -415,6 +419,7 @@ task pbGroupdedup {
         disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
         bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
         preemptible: select_first([preemptible_attempts, 0])
+        maxRetries: select_first([max_retries, 0])
         cpu: cpu
     }
 
