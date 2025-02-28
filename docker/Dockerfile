@@ -52,4 +52,4 @@ RUN conda install -y numpy -c conda-forge
 RUN conda install -y pandas -c conda-forge
 RUN conda install -y seaborn -c conda-forge
 
-RUN git clone -b mergeBamUpdated https://github.com/MethodsDev/masseq_data_processing.git
+RUN git clone -b main https://github.com/MethodsDev/masseq_data_processing.git
