@@ -54,7 +54,7 @@ workflow combinedSkeraSingleCell {
     # Step 2: Run pbSingleCell using the output from pbSkerawQC
     call PB.pbSingleCell {
         input:
-            skera_bam = pbSkerawQC.skera_out,
+            skera_bam = pbSkerawQC.skera_bam,
             sample_id = resolved_sample_id,
             primer_fasta = primer_fasta,
             barcodes_list = barcodes_list,
