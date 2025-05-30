@@ -40,4 +40,19 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: pbtools_tasklib
-
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/sc_QCreport.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_reporting
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/merge_and_bcstats.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_merging
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/combined_skera_sc.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_pbskera_pblima_pbisoseq_combined
+   
