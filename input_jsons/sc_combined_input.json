@@ -1,0 +1,19 @@
+{
+    "CombinedSkeraSingleCell.hifi_bam": "gs://path/to/your/hifi_reads.bam",
+    "CombinedSkeraSingleCell.sample_id": "your_sample_id",
+    "CombinedSkeraSingleCell.mas_adapters_fasta": "gs://path/to/mas_adapters.fasta",
+    "CombinedSkeraSingleCell.primer_fasta": "gs://path/to/primers.fasta",
+    "CombinedSkeraSingleCell.barcodes_list": "gs://path/to/barcodes.txt",
+    "CombinedSkeraSingleCell.read_design": "T-12U-16B",
+    "CombinedSkeraSingleCell.num_threads": 8,
+    "CombinedSkeraSingleCell.arraysize": 8,
+    "CombinedSkeraSingleCell.gcs_output_dir": "gs://your-bucket/output/",
+    "CombinedSkeraSingleCell.trimPolyA": true,
+    "CombinedSkeraSingleCell.clipAdapters": true,
+    "CombinedSkeraSingleCell.mem_gb_skera": 8,
+    "CombinedSkeraSingleCell.mem_gb_singlecell": 32,
+    "CombinedSkeraSingleCell.preemptible_attempts": 0,
+    "CombinedSkeraSingleCell.disk_space_gb_skera": 1024,
+    "CombinedSkeraSingleCell.disk_space_gb_singlecell": 2048,
+    "CombinedSkeraSingleCell.boot_disk_size_gb": 50
+  }

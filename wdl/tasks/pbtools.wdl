@@ -70,7 +70,8 @@ task pbSkerawQC {
     # Outputs:
     output {
         # Default output file name:
-        File skera_out        = "~{skera_id}.skera.bam"
+        File skera_bam        = "~{skera_id}.skera.bam"
+        String QC_plots       = "~{outdir}QC_plots"
     }
 
     # ------------------------------------------------
@@ -337,6 +338,7 @@ task pbSingleCell {
     output {
         # Default output file name:
         File corrected_reads  =  "~{sample_id}.corrected.bam"
+
     }
 
     # ------------------------------------------------
