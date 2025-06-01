@@ -22,7 +22,6 @@ task mergeAndbcstats {
     
     # Set defaults
     Int default_mem_gb = 16
-    Int default_disk_space_gb = 500
     Int default_cpu = 8
     Int default_boot_disk_size_gb = 50
     
@@ -75,6 +74,23 @@ task mergeAndbcstats {
         
         echo "bcstats analysis completed!"
         
+        # Run UMI counting and saturation analysis scripts
+        echo "Running UMI counting and saturation analysis (VLOGdatatransform)..."
+        python /usr/local/src/masseq_data_processing/sc_scripts/Isoseq_corrected_bam_umi_counting_and_saturation_VLOGdatatransform.py \
+            --bam_file /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
+            --tsv_output ~{sample_id}.umi_counts_vlog.tsv \
+            --bcstats_file /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
+            --saturation_index_plot ~{sample_id}.saturation_index_vlog.png
+        
+        echo "Running UMI counting and saturation analysis (vComprehensive)..."
+        python /usr/local/src/masseq_data_processing/sc_scripts/Isoseq_corrected_bam_umi_counting_and_saturation_vComprehensive.py \
+            --bam_file /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
+            --tsv_output ~{sample_id}.umi_counts_comprehensive.tsv \
+            --bcstats_file /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
+            --saturation_index_plot ~{sample_id}.saturation_index_comprehensive.png
+        
+        echo "UMI counting and saturation analysis completed!"
+        
         # Copy outputs to working directory for WDL to capture
         cp /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam ./
         cp /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam.bai ./
@@ -90,6 +106,10 @@ task mergeAndbcstats {
         File merged_sorted_bam_index = "~{sample_id}.CB_sorted.bam.bai"
         File bcstats_json = "~{sample_id}.bcstats.json"
         File bcstats_tsv = "~{sample_id}.bcstats.tsv"
+        File umi_counts_vlog_tsv = "~{sample_id}.umi_counts_vlog.tsv"
+        File saturation_index_vlog_plot = "~{sample_id}.saturation_index_vlog.png"
+        File umi_counts_comprehensive_tsv = "~{sample_id}.umi_counts_comprehensive.tsv"
+        File saturation_index_comprehensive_plot = "~{sample_id}.saturation_index_comprehensive.png"
     }
     
     runtime {
@@ -137,5 +157,9 @@ workflow mergeAndbcstatsWorkflow {
         File merged_sorted_bam_index = mergeAndbcstats.merged_sorted_bam_index
         File bcstats_json = mergeAndbcstats.bcstats_json
         File bcstats_tsv = mergeAndbcstats.bcstats_tsv
+        File umi_counts_vlog_tsv = mergeAndbcstats.umi_counts_vlog_tsv
+        File saturation_index_vlog_plot = mergeAndbcstats.saturation_index_vlog_plot
+        File umi_counts_comprehensive_tsv = mergeAndbcstats.umi_counts_comprehensive_tsv
+        File saturation_index_comprehensive_plot = mergeAndbcstats.saturation_index_comprehensive_plot
     }
 }
