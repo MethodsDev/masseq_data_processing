@@ -33,7 +33,7 @@ workflow combinedSkeraSingleCell {
     }
 
     # Determine sample ID if not provided
-    String resolved_sample_id = select_first([sample_id, sub(basename(hifi_bam,".bam"),".hifi_reads","")])
+    String resolved_sample_id = sub(basename(hifi_bam,".bam"),".hifi_reads","")
 
     # Step 1: Run pbSkerawQC
     call PB.pbSkerawQC {
