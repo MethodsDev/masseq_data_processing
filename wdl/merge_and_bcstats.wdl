@@ -27,7 +27,7 @@ task mergeAndbcstats {
     
     # Calculate input file sizes for disk space estimation
     Float input_files_size_gb = 3.0 * size(corrected_reads, "GiB")
-    Int calculated_disk_space_gb = ceil(input_files_size_gb + 200)
+    Int calculated_disk_space_gb = ceil((3 * input_files_size_gb) + 200)
     
     command <<<
         set -euxo pipefail
