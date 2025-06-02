@@ -2,18 +2,20 @@ version 1.0
 
 task generateReport {
     meta {
-        description: "Generates an HTML report using a Python script with pre-installed dependencies"
+        description: "Generates an HTML report consolidating flowcell level metrics and saturation plot for single cell runs"
     }
     
     input {
         # Required inputs
         String prefixes
         String barcodes
-        String data_dir
+        String QC_plots_dir  # QC_plots from skera data_dir
         String sample_id
         File base_inserts_run
         File base_inserts_prefix
-        File reporting_script  # The generate_report.py script
+        Array[File] CCS_report  # Array of CCS report files
+        File saturation_plot_png  # Saturation plot PNG file
+        File reporting_script  # Path to generate_report.py script
         
         # Optional inputs
         String? output_filename
@@ -30,7 +32,7 @@ task generateReport {
     Int default_disk_space_gb = 100
     Int default_cpu = 1
     Int default_boot_disk_size_gb = 25
-    String default_docker = "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/sc_reporting:latest"  # Replace with your custom image
+    String default_docker = "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/sc_reporting:latest"  
     
     # Determine output filename
     String final_output = select_first([output_filename, "${sample_id}_report.html"])
@@ -42,17 +44,43 @@ task generateReport {
         cp ~{reporting_script} ./stitchHtmlReport.py
         chmod +x ./stitchHtmlReport.py
         
+        echo "Creating localized data directory..."
+        mkdir -p localized_data
+        
+        echo "Localizing QC plots directory..."
+        # Copy QC plots directory contents to localized directory
+        if [[ -d "~{QC_plots_dir}" ]]; then
+            cp -r "~{QC_plots_dir}"/* localized_data/
+        else
+            echo "Warning: QC_plots_dir is not a directory, treating as file pattern"
+            cp ~{QC_plots_dir} localized_data/
+        fi
+        
+        echo "Localizing CCS report files..."
+        # Copy all CCS report files to localized directory
+        ~{sep=' ' CCS_report}
+        for ccs_file in ~{sep=' ' CCS_report}; do
+            cp "$ccs_file" localized_data/
+        done
+        
+        echo "Localizing saturation plot..."
+        # Copy saturation plot to localized directory
+        cp ~{saturation_plot_png} localized_data/
+        
+        echo "Contents of localized_data directory:"
+        ls -la localized_data/
+        
         echo "Starting report generation..."
         echo "Sample ID: ~{sample_id}"
         echo "Prefixes: ~{prefixes}"
         echo "Barcodes: ~{barcodes}"
-        echo "Data directory: ~{data_dir}"
+        echo "Localized data directory: localized_data"
         
-        # Run the Python script
+        # Run the Python script with localized_data as the data_dir
         python stitchHtmlReport.py \
             --prefixes "~{prefixes}" \
             --barcodes "~{barcodes}" \
-            --data-dir "~{data_dir}" \
+            --data-dir "localized_data" \
             --output "~{final_output}" \
             --sample-id "~{sample_id}" \
             --base-inserts-run "~{base_inserts_run}" \
@@ -87,17 +115,20 @@ task generateReport {
 
 workflow GenerateReportWorkflow {
     meta {
-        description: "Workflow to generate HTML reports using Python script with custom Docker image"
+        description: "Workflow to generate HTML report consolidating QC reports across flowcells for a Kinnex single cell sample"
     }
     
     input {
         String prefixes
         String barcodes
-        String data_dir
+        String QC_plots_dir 
         String sample_id
         File base_inserts_run
         File base_inserts_prefix
-        File reporting_script 
+        Array[File] CCS_report 
+        File saturation_plot_png  
+        File reporting_script
+        
         String? output_filename
         String? docker_image
         Int? mem_gb
@@ -111,10 +142,12 @@ workflow GenerateReportWorkflow {
         input:
             prefixes = prefixes,
             barcodes = barcodes,
-            data_dir = data_dir,
+            QC_plots_dir = QC_plots_dir,  
             sample_id = sample_id,
             base_inserts_run = base_inserts_run,
             base_inserts_prefix = base_inserts_prefix,
+            CCS_report = CCS_report,  
+            saturation_plot_png = saturation_plot_png,  
             reporting_script = reporting_script,
             output_filename = output_filename,
             docker_image = docker_image,
