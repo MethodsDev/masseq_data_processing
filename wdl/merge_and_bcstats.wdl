@@ -45,9 +45,9 @@ task mergeAndbcstats {
         echo "Input BAM files:"
         for bam_file in ~{sep=' ' corrected_reads}; do
             if [[ -f "$bam_file" ]]; then
-                echo "✓ Found: $bam_file ($(du -h "$bam_file" | cut -f1))"
+                echo "Found: $bam_file ($(du -h "$bam_file" | cut -f1))"
             else
-                echo "✗ Missing: $bam_file"
+                echo "Missing: $bam_file"
                 exit 1
             fi
         done
