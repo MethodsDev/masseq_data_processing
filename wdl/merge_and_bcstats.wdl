@@ -31,20 +31,27 @@ task mergeAndbcstats {
     
     command <<<
         set -euxo pipefail
-        
+    
         echo "Starting merge and bcstats analysis..."
         echo "Sample ID: ~{sample_id}"
         echo "Number of input BAMs: ~{length(corrected_reads)}"
         echo "Movie names: ~{sep=',' movie_names}"
-        
+    
         # Create output directories
         mkdir -p /mnt/data/saturation_index/bcstats_out
         mkdir -p /mnt/data/saturation_index/corrected_merged_bams
-        
-        # List input files
+    
+        # List and verify input files
         echo "Input BAM files:"
-        ~{sep='\n' corrected_reads}
-        
+        for bam_file in ~{sep=' ' corrected_reads}; do
+            if [[ -f "$bam_file" ]]; then
+                echo "✓ Found: $bam_file ($(du -h "$bam_file" | cut -f1))"
+            else
+                echo "✗ Missing: $bam_file"
+                exit 1
+            fi
+        done
+    
         # Merge BAM files using samtools
         echo "Merging BAM files with samtools..."
         if [ ~{length(corrected_reads)} -eq 1 ]; then
@@ -99,7 +106,7 @@ task mergeAndbcstats {
         
         echo "All outputs copied to working directory"
         ls -lh
-    >>>
+    >>> 
     
     output {
         File merged_sorted_bam = "~{sample_id}.CB_sorted.bam"
