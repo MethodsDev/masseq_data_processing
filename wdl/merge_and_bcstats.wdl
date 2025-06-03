@@ -23,7 +23,7 @@ task mergeAndbcstats {
     # Set defaults
     Int default_mem_gb = 16
     Int default_cpu = 8
-    Int default_boot_disk_size_gb = 50
+    Int default_boot_disk_size_gb = ceil((2.5 * input_files_size_gb)) 
     
     # Calculate input file sizes for disk space estimation
     Float input_files_size_gb = 3.0 * size(corrected_reads, "GiB")
@@ -38,8 +38,9 @@ task mergeAndbcstats {
         echo "Movie names: ~{sep=',' movie_names}"
     
         # Create output directories
-        mkdir -p /mnt/data/saturation_index/bcstats_out
-        mkdir -p /mnt/data/saturation_index/corrected_merged_bams
+        mkdir ./tmp
+        mkdir -p ./data/saturation_index/bcstats_out
+        mkdir -p ./data/saturation_index/corrected_merged_bams
     
         # List and verify input files
         echo "Input BAM files:"
@@ -64,45 +65,45 @@ task mergeAndbcstats {
         
         # Sort by cell barcode (CB tag)
         echo "Sorting BAM by cell barcode (CB tag)..."
-        samtools sort -@ ~{num_threads} -t CB -o /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam temp_merged.bam
+        samtools sort -@ ~{num_threads} -t CB -T ./tmp -o ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam temp_merged.bam
         
         # Index the sorted BAM
         echo "Indexing sorted BAM..."
-        samtools index /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam
+        samtools index ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam
         
         # Run isoseq bcstats
         echo "Running isoseq bcstats..."
         isoseq bcstats \
             --method percentile \
             --percentile 95 \
-            --json /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.json \
-            -o /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
-            /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam 2>&1
+            --json ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.json \
+            -o ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
+            ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam 2>&1
         
         echo "bcstats analysis completed!"
         
         # Run UMI counting and saturation analysis scripts
         echo "Running UMI counting and saturation analysis (VLOGdatatransform)..."
         python /usr/local/src/masseq_data_processing/sc_scripts/Isoseq_corrected_bam_umi_counting_and_saturation_VLOGdatatransform.py \
-            --bam_file /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
+            --bam_file ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
             --tsv_output ~{sample_id}.umi_counts_vlog.tsv \
-            --bcstats_file /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
+            --bcstats_file ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
             --saturation_index_plot ~{sample_id}.saturation_index_vlog.png
         
         echo "Running UMI counting and saturation analysis (vComprehensive)..."
         python /usr/local/src/masseq_data_processing/sc_scripts/Isoseq_corrected_bam_umi_counting_and_saturation_vComprehensive.py \
-            --bam_file /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
+            --bam_file ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam \
             --tsv_output ~{sample_id}.umi_counts_comprehensive.tsv \
-            --bcstats_file /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
+            --bcstats_file ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv \
             --saturation_index_plot ~{sample_id}.saturation_index_comprehensive.png
         
         echo "UMI counting and saturation analysis completed!"
         
-        # Copy outputs to working directory for WDL to capture
-        cp /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam ./
-        cp /mnt/data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam.bai ./
-        cp /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.json ./
-        cp /mnt/data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv ./
+
+        cp ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam ./
+        cp ./data/saturation_index/corrected_merged_bams/~{sample_id}.CB_sorted.bam.bai ./
+        cp ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.json ./
+        cp ./data/saturation_index/bcstats_out/~{sample_id}.bcstats.tsv ./
         
         echo "All outputs copied to working directory"
         ls -lh
