@@ -53,7 +53,6 @@ task generateReport {
         
         echo "Localizing CCS report files..."
         # Copy all CCS report files to localized directory
-        ~{sep=' ' CCS_report}
         for ccs_file in ~{sep=' ' CCS_report}; do
             cp "$ccs_file" localized_data/
         done
