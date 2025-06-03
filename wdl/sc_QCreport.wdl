@@ -49,12 +49,7 @@ task generateReport {
         
         echo "Localizing QC plots directory..."
         # Copy QC plots directory contents to localized directory
-        if [[ -d "~{QC_plots_dir}" ]]; then
-            cp -r "~{QC_plots_dir}"/* localized_data/
-        else
-            echo "Warning: QC_plots_dir is not a directory, treating as file pattern"
-            cp ~{QC_plots_dir} localized_data/
-        fi
+        gsutil -m cp -r "~{QC_plots_dir}"/* localized_data/
         
         echo "Localizing CCS report files..."
         # Copy all CCS report files to localized directory
