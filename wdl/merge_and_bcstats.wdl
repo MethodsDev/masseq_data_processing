@@ -23,12 +23,11 @@ task mergeAndbcstats {
     # Set defaults
     Int default_mem_gb = 16
     Int default_cpu = 8
-    Int default_boot_disk_size_gb = ceil((2.5 * input_files_size_gb)) 
     
     # Calculate input file sizes for disk space estimation
     Float input_files_size_gb = 3.0 * size(corrected_reads, "GiB")
     Int calculated_disk_space_gb = ceil((3 * input_files_size_gb) + 200)
-    
+    Int default_boot_disk_size_gb = ceil((2.5 * input_files_size_gb)) 
     command <<<
         set -euxo pipefail
     
