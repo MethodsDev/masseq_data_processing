@@ -126,11 +126,20 @@ def main():
         cutoff_index = x_coef_indices[0]
         x_fit_trim = x_fit[:cutoff_index]
         y_fit_trim = y_fit[:cutoff_index]
+      # bug:  x_max_val = np.max(x_fit_trim)
+      # NEW:
+      if x_fit_trim.size > 0:
         x_max_val = np.max(x_fit_trim)
+        else:
+            print("Warning: x_fit_trim is empty, using default value")
+            x_max_val = 0  # Choose appropriate default for your use case
     else:
         x_fit_trim = x_fit
         y_fit_trim = y_fit
-        x_max_val = np.max(x_fit)
+        if x_fit > 0 :
+            x_max_val = np.max(x_fit)
+        else:
+            x_max_val = 0 
     
     # Compute confidence intervals using parameter uncertainties.
     bound_upper = MM(x_fit_trim, Vmax + sigma[0], Km + sigma[1])
