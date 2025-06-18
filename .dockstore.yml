@@ -55,4 +55,9 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: sc_pbskera_pblima_pbisoseq_combined
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/isoseq_bcstats.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_pbisoseq_bcstats
    
