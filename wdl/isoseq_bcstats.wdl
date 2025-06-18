@@ -6,7 +6,7 @@ task isoseqBcstats {
     }
     
     input {
-        
+
         File corrected_reads_bam
         String? sample_id
         
@@ -84,7 +84,7 @@ workflow IsoseqBcstatsWorkflow {
     
     input {
         File corrected_reads_bam
-        String sample_id
+        String? sample_id
         Int? percentile
         String? method
         Int? mem_gb
