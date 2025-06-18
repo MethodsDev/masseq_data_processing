@@ -6,9 +6,9 @@ task isoseqBcstats {
     }
     
     input {
-        # Required inputs
+        
         File corrected_reads_bam
-        String sample_id
+        String? sample_id
         
         # Optional inputs
         Int percentile = 95
@@ -22,19 +22,23 @@ task isoseqBcstats {
     
     # Set defaults
     Int default_mem_gb = 8
-    Int default_disk_space_gb = 200
     Int default_cpu = 4
     Int default_boot_disk_size_gb = 50
     
     # Calculate input file sizes for disk space estimation
     Float input_files_size_gb = 2.0 * size(corrected_reads_bam, "GiB")
     Int calculated_disk_space_gb = ceil(input_files_size_gb + 100)
-    
+
+   # Extract sample ID from BAM filename if not provided
+    String extracted_sample_id = sub(basename(corrected_reads_bam, ".bam"), "\\.(CB_sorted|corrected)$", "")
+    String final_sample_id = select_first([sample_id, extracted_sample_id])
+
+ 
     command <<<
         set -euxo pipefail
         
         echo "Starting isoseq bcstats analysis..."
-        echo "Sample ID: ~{sample_id}"
+        echo "Sample ID: ~{final_sample_id}"
         echo "Input BAM: ~{corrected_reads_bam}"
         echo "Method: ~{method}"
         echo "Percentile: ~{percentile}"
@@ -48,8 +52,8 @@ task isoseqBcstats {
         isoseq bcstats \
             --method ~{method} \
             --percentile ~{percentile} \
-            --json ~{sample_id}.bcstats.json \
-            -o ~{sample_id}.bcstats.tsv \
+            --json ~{final_sample_id}.bcstats.json \
+            -o ~{final_sample_id}.bcstats.tsv \
             ~{corrected_reads_bam} 2>&1
         
         echo "bcstats analysis completed!"
@@ -59,8 +63,8 @@ task isoseqBcstats {
     >>>
     
     output {
-        File bcstats_json = "~{sample_id}.bcstats.json"
-        File bcstats_tsv = "~{sample_id}.bcstats.tsv"
+        File bcstats_json = "~{final_sample_id}.bcstats.json"
+        File bcstats_tsv = "~{final_sample_id}.bcstats.tsv"
     }
     
     runtime {
