@@ -57,9 +57,10 @@ task filterLRReadsUsingSRCBs {
     >>>
     
     output {
-        File filtered_bam = "~{final_sample_id}.filtered.corrected.bam"
-        File qc_report = "~{final_sample_id}.SR_CB_qc_report.txt"
-        File barcode_plot = "~{final_sample_id}.filtered.corrected.bam.barcode_plot.png"
+        File filtered_bam   =   "~{final_sample_id}.filtered.corrected.bam"
+        File qc_report      =   "~{final_sample_id}.SR_CB_qc_report.txt"
+        File barcode_plot   =   "~{final_sample_id}.filtered.corrected.bam.barcode_plot.png"
+        File barcode_counts =   "~{final_sample_id}.filtered.corrected.bam.barcode_counts.tsv"
     }
     
     runtime {
@@ -207,6 +208,7 @@ workflow CombinedFilterAndBcstatsWorkflow {
         File filtered_bam = filterLRReadsUsingSRCBs.filtered_bam
         File qc_report = filterLRReadsUsingSRCBs.qc_report
         File barcode_plot = filterLRReadsUsingSRCBs.barcode_plot
+        File barcode_counts = filterLRReadsUsingSRCBs.barcode_counts
         File bcstats_json = isoseqBcstats.bcstats_json
         File bcstats_tsv = isoseqBcstats.bcstats_tsv
     }
