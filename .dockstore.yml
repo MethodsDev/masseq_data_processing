@@ -60,4 +60,9 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: sc_pbisoseq_bcstats
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/filter_LR_reads_plus_bcstats.wdl
+    testParameterFiles:
+      - /optional.json
+    name: sc_filter_LRReads_using_SRCBs
    
