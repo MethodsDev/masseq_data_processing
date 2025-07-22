@@ -5,6 +5,7 @@ import argparse
 from datetime import datetime
 from collections import defaultdict
 import matplotlib.pyplot as plt
+import numpy as np
 
 def reverse_complement(seq):
     complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C', 'N': 'N'}
@@ -13,6 +14,31 @@ def reverse_complement(seq):
 def read_barcodes(barcode_file):
     with open(barcode_file) as f:
         return set(line.strip() for line in f if line.strip())
+
+def plot_top_barcodes(barcode_counts, output_image, top_n=20):
+    if not barcode_counts:
+        print("No barcode counts to plot.")
+        return
+
+    top_bcs = sorted(barcode_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    labels, counts = zip(*top_bcs)
+
+    plt.figure(figsize=(10, 6))
+    plt.bar(range(len(labels)), counts, color='steelblue')
+    plt.xticks(range(len(labels)), labels, rotation=90)
+    plt.xlabel("Barcode")
+    plt.ylabel("Read Count")
+    plt.title(f"Top {top_n} Barcodes by Read Count")
+    plt.tight_layout()
+    plt.savefig(output_image)
+    plt.close()
+
+def write_barcode_counts_tsv(barcode_counts, output_prefix):
+    with open(output_prefix, 'w') as f:
+        f.write("Barcode\tReadCount\n")
+        for barcode, count in sorted(barcode_counts.items(), key=lambda x: -x[1]):
+            f.write(f"{barcode}\t{count}\n")
+    print(f"Barcode count table saved to: {output_prefix}")
 
 def filter_bam_by_barcode(input_bam, output_bam, barcode_file, report_file, sample_id=None):
     barcodes = read_barcodes(barcode_file)
@@ -57,6 +83,7 @@ def filter_bam_by_barcode(input_bam, output_bam, barcode_file, report_file, samp
         max_cb = max(barcode_counts.items(), key=lambda x: x[1])
         min_cb = min(barcode_counts.items(), key=lambda x: x[1])
         avg_reads_per_cb = sum(barcode_counts.values()) / len(barcode_counts)
+        median_reads_per_cb = np.median(list(barcode_counts.values()))
     else:
         max_cb = ("NA", 0)
         min_cb = ("NA", 0)
@@ -79,38 +106,22 @@ def filter_bam_by_barcode(input_bam, output_bam, barcode_file, report_file, samp
         f"Barcodes in list: {len(barcodes)}",
         f"Barcodes found in BAM: {len(found_barcodes)}",
         f"Average reads per retained barcode: {avg_reads_per_cb:.2f}",
+        f"Median reads per retained barcode: {median_reads_per_cb:.2f}",
         f"Barcode with most reads: {max_cb[0]} ({max_cb[1]} reads)",
         f"Barcode with fewest reads: {min_cb[0]} ({min_cb[1]} reads)",
     ]
 
-    
     plot_file = output_bam + ".barcode_plot.png"
     plot_top_barcodes(barcode_counts, plot_file)
     summary_lines.append(f"Plot saved as: {plot_file}")
+
+    barcodes_tsv=output_bam + ".barcode_counts.tsv"
+    write_barcode_counts_tsv(barcode_counts, barcodes_tsv)
 
     with open(report_file, 'w') as rf:
         rf.write('\n'.join(summary_lines) + '\n')
 
     print("\n".join(summary_lines))
-
-
-def plot_top_barcodes(barcode_counts, output_image, top_n=20):
-    if not barcode_counts:
-        print("No barcode counts to plot.")
-        return
-
-    top_bcs = sorted(barcode_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
-    labels, counts = zip(*top_bcs)
-
-    plt.figure(figsize=(10, 6))
-    plt.bar(range(len(labels)), counts, color='steelblue')
-    plt.xticks(range(len(labels)), labels, rotation=90)
-    plt.xlabel("Barcode")
-    plt.ylabel("Read Count")
-    plt.title(f"Top {top_n} Barcodes by Read Count")
-    plt.tight_layout()
-    plt.savefig(output_image)
-    plt.close()
 
 
 def main():
