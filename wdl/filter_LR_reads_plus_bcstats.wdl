@@ -102,7 +102,7 @@ task isoseqBcstats {
     Int calculated_disk_space_gb = ceil(input_files_size_gb + 100)
 
     # Extract sample ID from BAM filename if not provided
-    String extracted_sample_id = sub(basename(corrected_reads_bam, ".bam"), "\\.(CB_sorted|corrected|filtered)$", "")
+    String extracted_sample_id = sub(basename(corrected_reads_bam, ".bam"), "\\.(CB_sorted|corrected)$", "")
     String final_sample_id = select_first([sample_id, extracted_sample_id])
 
     command <<<
@@ -193,7 +193,7 @@ workflow CombinedFilterAndBcstatsWorkflow {
     # Step 2: Run bcstats analysis on the filtered BAM
     call isoseqBcstats {
         input:
-            corrected_reads_bam = filterLRReadsUsingSRCBs.filtered_bam,
+            corrected_reads_bam = input_bam,
             sample_id = sample_id,
             percentile = bcstats_percentile,
             method = bcstats_method,
