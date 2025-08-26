@@ -181,7 +181,6 @@ task bulkMerge {
         String lima_dir
         String? datasetId = "Replicates_merged" 
         File barcode_to_sample
-        File bulk_barcodes_fasta
         Boolean mergeBams = false 
         Int num_threads
         String gcs_output_dir
