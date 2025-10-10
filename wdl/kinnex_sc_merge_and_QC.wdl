@@ -274,8 +274,8 @@ workflow EnhancedMergeWorkflow {
             input:
                 corrected_reads_bam = MergeOnly.merged_sorted_bam,
                 sample_id = sample_id,
-                bcstats_percentile = bcstats_percentile,
-                bcstats_method = bcstats_method,
+                percentile = bcstats_percentile,
+                method = bcstats_method,
                 mem_gb = mem_gb,
                 disk_space_gb = disk_space_gb,
                 cpu = cpu,
