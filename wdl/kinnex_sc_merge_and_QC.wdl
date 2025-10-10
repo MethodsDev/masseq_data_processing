@@ -221,8 +221,8 @@ workflow EnhancedMergeWorkflow {
         Int? num_threads
         
         # Optional inputs for bcstats
-        Int? percentile
-        String? method
+        Int? bcstats_percentile
+        String? bcstats_method
         
         # Optional inputs for groupdedup
         Boolean keep_non_real_cells = true
@@ -274,8 +274,8 @@ workflow EnhancedMergeWorkflow {
             input:
                 corrected_reads_bam = MergeOnly.merged_sorted_bam,
                 sample_id = sample_id,
-                percentile = percentile,
-                method = method,
+                bcstats_percentile = bcstats_percentile,
+                bcstats_method = bcstats_method,
                 mem_gb = mem_gb,
                 disk_space_gb = disk_space_gb,
                 cpu = cpu,
