@@ -104,7 +104,7 @@ task CountReadLengthsTask {
     input {
         File input_bam
         File? input_bam_index
-        File python_script
+        File count_readlengths_py
         String output_basename
         Int workers
         
@@ -122,7 +122,7 @@ task CountReadLengthsTask {
         set -euox pipefail
         
         # Copy the input Python script to the working directory
-        cp "~{python_script}" count_read_lengths.py
+        cp "~{count_readlengths_py}" count_read_lengths.py
         
         # Make the script executable
         chmod +x count_read_lengths.py
@@ -203,7 +203,7 @@ workflow EnhancedMergeWorkflow {
         Boolean countsPerBarcode = false
         
         # Optional inputs for CountReadLengths
-        File? python_script_readlengths
+        File? count_readlengths_py
         String output_basename = "read_length_counts"
         Int workers = 4
         
@@ -249,7 +249,7 @@ workflow EnhancedMergeWorkflow {
             input:
                 input_bam = MergeOnly.merged_sorted_bam,
                 input_bam_index = MergeOnly.merged_sorted_bam_index,
-                python_script = select_first([python_script_readlengths]),
+                count_readlengths_py = select_first([count_readlengths_py]),
                 output_basename = output_basename,
                 workers = workers
         }
