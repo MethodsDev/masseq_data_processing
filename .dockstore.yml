@@ -65,4 +65,13 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: sc_filter_LRReads_using_SRCBs
-   
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/kinnex_sc_merge_and_QC.wdl
+    testParameterFiles:
+      - /optional.json
+    name: kinnex_sc_merge_and_QC
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/kinnex_sc_flowcell_preprocessing_combined.wdl
+    testParameterFiles:
+      - /optional.json
+    name: kinnex_sc_flowcell_preprocessing_combined
