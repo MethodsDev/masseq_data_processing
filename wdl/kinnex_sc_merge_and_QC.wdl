@@ -16,11 +16,11 @@ task MergeOnly {
         String sample_id
         
         # Optional inputs
-        Int? mem_gb
-        Int? disk_space_gb
-        Int? cpu
-        Int? preemptible_attempts
-        Int? boot_disk_size_gb
+        Int? merge_only_mem_gb
+        Int? merge_only_disk_space_gb
+        Int? merge_only_cpu
+        Int? merge_only_preemptible_attempts
+        Int? merge_only_boot_disk_size_gb
         Int num_threads = 8
     }
     
@@ -28,10 +28,10 @@ task MergeOnly {
     Int default_mem_gb = 16
     Int default_cpu = 8
     
-    # Calculate input file sizes for disk space estimation
+    # Calculate input file sizes for disk space estimation (consistent with repo style)
     Float input_files_size_gb = 3.0 * size(corrected_reads, "GiB")
     Int calculated_disk_space_gb = ceil((3 * input_files_size_gb) + 200)
-    Int default_boot_disk_size_gb = ceil((2.5 * input_files_size_gb)) 
+    Int default_boot_disk_size_gb = ceil(2.5 * input_files_size_gb)
 
     command <<<
         set -euxo pipefail
@@ -41,8 +41,8 @@ task MergeOnly {
         echo "Number of input BAMs: ~{length(corrected_reads)}"
         echo "Movie names: ~{sep=',' movie_names}"
     
-        # Create output directories
-        mkdir ./tmp
+        # Create output directories (matching repo structure)
+        mkdir -p ./tmp
         mkdir -p ./data/corrected_merged_bams
     
         # List and verify input files
@@ -91,16 +91,20 @@ task MergeOnly {
     
     runtime {
         docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
-        memory: select_first([mem_gb, default_mem_gb]) + " GiB"
-        disks: "local-disk " + select_first([disk_space_gb, calculated_disk_space_gb]) + " SSD"
-        bootDiskSizeGb: select_first([boot_disk_size_gb, default_boot_disk_size_gb])
-        cpu: select_first([cpu, default_cpu])
-        preemptible: select_first([preemptible_attempts, 0])
+        memory: select_first([merge_only_mem_gb, default_mem_gb]) + " GiB"
+        disks: "local-disk " + select_first([merge_only_disk_space_gb, calculated_disk_space_gb]) + " SSD"
+        bootDiskSizeGb: select_first([merge_only_boot_disk_size_gb, default_boot_disk_size_gb])
+        cpu: select_first([merge_only_cpu, default_cpu])
+        preemptible: select_first([merge_only_preemptible_attempts, 0])
     }
 }
 
 # Task for counting read lengths
 task CountReadLengthsTask {
+    meta {
+        description: "Counts read lengths from BAM files using custom Python script"
+    }
+    
     input {
         File input_bam
         File? input_bam_index
@@ -109,17 +113,26 @@ task CountReadLengthsTask {
         Int workers
         
         # Runtime parameters
-        Int cpu = 4
-        Int memory_gb = 8
-        Int? disk_space_gb
-        String docker = "quay.io/biocontainers/pysam:0.22.1--py39hdd5828d_3"
+        Int? count_read_lengths_cpu
+        Int? count_read_lengths_memory_gb
+        Int? count_read_lengths_disk_space_gb
+        Int? count_read_lengths_preemptible_attempts
+        Int? count_read_lengths_boot_disk_size_gb
     }
 
-    Int default_disk_space_gb = ceil(1.2 * size(input_bam, "GB")) 
+    # Set defaults (consistent with repo style)
+    Int default_cpu = 4
+    Int default_memory_gb = 8
+    Int default_boot_disk_size_gb = 25
+    Int default_disk_space_gb = ceil(1.2 * size(input_bam, "GiB") + 50)
     String output_filename = "${output_basename}.pkl"
 
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
+        
+        echo "Starting read length counting..."
+        echo "Input BAM: ~{input_bam}"
+        echo "Workers: ~{workers}"
         
         # Copy the input Python script to the working directory
         cp "~{count_readlengths_py}" count_read_lengths.py
@@ -132,6 +145,9 @@ task CountReadLengthsTask {
             --bam "~{input_bam}" \
             --out "~{output_filename}" \
             --workers ~{workers}
+            
+        echo "Read length counting completed!"
+        ls -lh ~{output_filename}
     >>>
 
     output {
@@ -139,15 +155,21 @@ task CountReadLengthsTask {
     }
 
     runtime {
-        docker: docker
-        cpu: cpu
-        memory: "${memory_gb} GB"
-        disks: "local-disk " + select_first([disk_space_gb, default_disk_space_gb]) + " SSD"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
+        cpu: select_first([count_read_lengths_cpu, default_cpu])
+        memory: select_first([count_read_lengths_memory_gb, default_memory_gb]) + " GiB"
+        disks: "local-disk " + select_first([count_read_lengths_disk_space_gb, default_disk_space_gb]) + " SSD"
+        bootDiskSizeGb: select_first([count_read_lengths_boot_disk_size_gb, default_boot_disk_size_gb])
+        preemptible: select_first([count_read_lengths_preemptible_attempts, 0])
     }
 }
 
 # Task for counting UMIs per barcode
 task CountUMI {
+    meta {
+        description: "Counts UMIs per barcode from BAM files using custom Python script"
+    }
+    
     input {
         File bam
         File bai
@@ -155,22 +177,42 @@ task CountUMI {
         String sample_id
         String cb_tag = "CB"
         String umi_tag = "XM"
+        
+        # Runtime parameters
+        Int? count_umi_cpu
+        Int? count_umi_memory_gb
+        Int? count_umi_disk_space_gb
+        Int? count_umi_preemptible_attempts
+        Int? count_umi_boot_disk_size_gb
     }
 
+    # Set defaults (consistent with repo style)
+    Int default_cpu = 4
+    Int default_memory_gb = 32
+    Int default_boot_disk_size_gb = 25
+    Int default_disk_space_gb = ceil(2.0 * size(bam, "GiB") + 50)
+
     command <<<
-        set -euox pipefail
+        set -euxo pipefail
 
-        # Install required Python packages
-        pip install pysam pandas
+        echo "Starting UMI counting..."
+        echo "Input BAM: ~{bam}"
+        echo "Sample ID: ~{sample_id}"
+        echo "CB tag: ~{cb_tag}"
+        echo "UMI tag: ~{umi_tag}"
 
-        cp ~{process_barcodes_py} process_barcodes_py.py
+        # Copy the Python script
+        cp ~{process_barcodes_py} process_barcodes.py
 
-        python3 process_barcodes_py.py \
+        python3 process_barcodes.py \
             ~{bam} \
             --sample_id ~{sample_id} \
             --cb_tag ~{cb_tag} \
             --umi_tag ~{umi_tag} \
             -o ~{sample_id}.counts.tsv
+            
+        echo "UMI counting completed!"
+        ls -lh ~{sample_id}.counts.tsv
     >>>
 
     output {
@@ -178,16 +220,20 @@ task CountUMI {
     }
 
     runtime {
-        docker: "python:3.10-slim"
-        cpu: 4
-        memory: "32G"
-        disks: "local-disk 200 SSD"
+        docker: "us-east4-docker.pkg.dev/methods-dev-lab/masseq-dataproc/masseq_prod:latest"
+        cpu: select_first([count_umi_cpu, default_cpu])
+        memory: select_first([count_umi_memory_gb, default_memory_gb]) + " GiB"
+        disks: "local-disk " + select_first([count_umi_disk_space_gb, default_disk_space_gb]) + " SSD"
+        bootDiskSizeGb: select_first([count_umi_boot_disk_size_gb, default_boot_disk_size_gb])
+        preemptible: select_first([count_umi_preemptible_attempts, 0])
     }
 }
 
 workflow EnhancedMergeWorkflow {
     meta {
         description: "Enhanced merging workflow with conditional bcstats, groupdedup, read length counting, and UMI counting"
+        author: "Methods Dev Lab"
+        version: "1.0"
     }
     
     input {
@@ -235,28 +281,33 @@ workflow EnhancedMergeWorkflow {
             corrected_reads = corrected_reads,
             movie_names = movie_names,
             sample_id = sample_id,
-            mem_gb = mem_gb,
-            disk_space_gb = disk_space_gb,
-            cpu = cpu,
-            preemptible_attempts = preemptible_attempts,
-            boot_disk_size_gb = boot_disk_size_gb,
+            merge_only_mem_gb = mem_gb,
+            merge_only_disk_space_gb = disk_space_gb,
+            merge_only_cpu = cpu,
+            merge_only_preemptible_attempts = preemptible_attempts,
+            merge_only_boot_disk_size_gb = boot_disk_size_gb,
             num_threads = num_threads
     }
     
     # Conditionally run CountReadLengths
-    if (countReadLengths) {
+    if (countReadLengths && defined(count_readlengths_py)) {
         call CountReadLengthsTask {
             input:
                 input_bam = MergeOnly.merged_sorted_bam,
                 input_bam_index = MergeOnly.merged_sorted_bam_index,
                 count_readlengths_py = select_first([count_readlengths_py]),
                 output_basename = output_basename,
-                workers = workers
+                workers = workers,
+                count_read_lengths_cpu = cpu,
+                count_read_lengths_memory_gb = mem_gb,
+                count_read_lengths_disk_space_gb = disk_space_gb,
+                count_read_lengths_preemptible_attempts = preemptible_attempts,
+                count_read_lengths_boot_disk_size_gb = boot_disk_size_gb
         }
     }
     
     # Conditionally run CountUMI
-    if (countsPerBarcode) {
+    if (countsPerBarcode && defined(process_barcodes_py)) {
         call CountUMI {
             input:
                 bam = MergeOnly.merged_sorted_bam,
@@ -264,13 +315,18 @@ workflow EnhancedMergeWorkflow {
                 process_barcodes_py = select_first([process_barcodes_py]),
                 sample_id = sample_id,
                 cb_tag = cb_tag,
-                umi_tag = umi_tag
+                umi_tag = umi_tag,
+                count_umi_cpu = cpu,
+                count_umi_memory_gb = mem_gb,
+                count_umi_disk_space_gb = disk_space_gb,
+                count_umi_preemptible_attempts = preemptible_attempts,
+                count_umi_boot_disk_size_gb = boot_disk_size_gb
         }
     }
     
     # Conditionally run isoseq bcstats
     if (bcstat) {
-        call BCSTATS.isoseqBcstats {
+        call BCSTATS.isoseqBcstats as bcstatsCall {
             input:
                 corrected_reads_bam = MergeOnly.merged_sorted_bam,
                 sample_id = sample_id,
@@ -286,7 +342,7 @@ workflow EnhancedMergeWorkflow {
     
     # Conditionally run pbGroupdedup
     if (groupdedup) {
-        call PB.pbGroupdedup {
+        call PB.pbGroupdedup as groupdedupCall {
             input:
                 input_bam = MergeOnly.merged_sorted_bam,
                 sample_id = sample_id,
@@ -308,9 +364,9 @@ workflow EnhancedMergeWorkflow {
         # Conditional outputs
         File? read_length_counts = CountReadLengthsTask.read_length_counts
         File? umi_counts = CountUMI.counts
-        File? bcstats_json = isoseqBcstats.bcstats_json
-        File? bcstats_tsv = isoseqBcstats.bcstats_tsv
-        String? dedup_out = pbGroupdedup.dedup_out
-        File? deduped_bam = pbGroupdedup.deduped_bam
+        File? bcstats_json = bcstatsCall.bcstats_json
+        File? bcstats_tsv = bcstatsCall.bcstats_tsv
+        String? dedup_out = groupdedupCall.dedup_out
+        File? deduped_bam = groupdedupCall.deduped_bam
     }
 }
