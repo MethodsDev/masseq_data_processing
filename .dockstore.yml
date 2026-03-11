@@ -75,3 +75,8 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: kinnex_sc_flowcell_preprocessing_combined
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/sc_isoseq_correct.wdl
+    testParameterFiles:
+      - /optional.json
+    name: kinnex_sc_isoseq_correct
