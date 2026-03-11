@@ -56,7 +56,7 @@ task pbCorrect {
     String outdir = sub(gcs_output_dir, "/$", "") + "/"
     String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
 
-    command <
+    command <<<
         set -euxo pipefail
 
         echo "Running isoseq correct..."
