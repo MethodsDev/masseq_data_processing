@@ -49,22 +49,25 @@ task pbCorrect {
         Int? boot_disk_size_gb
     }
 
-    String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
-    String corrected_bam = resolved_sample_id + ".corrected.bam"
-
     Float input_files_size_gb = 2.5 * (size(refine_bam, "GiB"))
     Int default_ram = 32
     Int default_disk_space_gb = ceil((input_files_size_gb * 5) + 1024)
     Int default_boot_disk_size_gb = 50
     Int machine_mem = if defined(mem_gb) then select_first([mem_gb]) else default_ram
-
     String outdir = sub(sub(gcs_output_dir + "/", "/+", "/"), "gs:/", "gs://")
 
     command <
         set -euxo pipefail
 
+        # Resolve sample ID from input or infer from filename
+        if ~{defined(sample_id)}; then
+            resolved_sample_id="~{select_first([sample_id, ""])}"
+        else
+            resolved_sample_id=$(basename ~{refine_bam} .bam | sed 's/\.refine//')
+        fi
+
         echo "Running isoseq correct..."
-        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{corrected_bam}
+        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ${resolved_sample_id}.corrected.bam
         echo "isoseq correct completed."
 
         echo "Uploading corrected bams..."
@@ -73,7 +76,7 @@ task pbCorrect {
     >>>
 
     output {
-        File corrected_reads = corrected_bam
+        File corrected_reads = sub(basename(refine_bam, ".bam"), ".refine", "") + ".corrected.bam"
     }
 
     runtime {
