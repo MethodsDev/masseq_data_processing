@@ -54,7 +54,7 @@ task pbCorrect {
     Int default_boot_disk_size_gb = 50
     Int machine_mem = select_first([mem_gb, default_ram])
     String outdir = sub(gcs_output_dir, "/$", "") + "/"
-    String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
+    String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".lima.refine", "")])
 
     command <<<
         set -euxo pipefail
