@@ -50,6 +50,7 @@ task pbCorrect {
     }
 
     String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
+    String corrected_bam = resolved_sample_id + ".corrected.bam"
 
     Float input_files_size_gb = 2.5 * (size(refine_bam, "GiB"))
     Int default_ram = 32
@@ -63,7 +64,7 @@ task pbCorrect {
         set -euxo pipefail
 
         echo "Running isoseq correct..."
-        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam
+        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{corrected_bam}
         echo "isoseq correct completed."
 
         echo "Uploading corrected bams..."
@@ -72,7 +73,7 @@ task pbCorrect {
     >>>
 
     output {
-        File corrected_reads = "~{resolved_sample_id}.corrected.bam"
+        File corrected_reads = corrected_bam
     }
 
     runtime {
