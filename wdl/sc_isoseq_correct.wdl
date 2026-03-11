@@ -49,7 +49,6 @@ task pbCorrect {
         Int? boot_disk_size_gb
     }
 
-    # Infer sample ID from refine_bam filename if not provided
     String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
 
     Float input_files_size_gb = 2.5 * (size(refine_bam, "GiB"))
@@ -64,11 +63,7 @@ task pbCorrect {
         set -euxo pipefail
 
         echo "Running isoseq correct..."
-        isoseq correct \
-            --barcodes ~{barcodes_list} \
-            -j ~{num_threads} \
-            ~{refine_bam} \
-            ~{resolved_sample_id}.corrected.bam
+        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam
         echo "isoseq correct completed."
 
         echo "Uploading corrected bams..."
