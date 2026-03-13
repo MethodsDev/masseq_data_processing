@@ -80,3 +80,8 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: kinnex_sc_isoseq_correct
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/filterLRreadsUsingCBs.wdl
+    testParameterFiles:
+      - /optional.json
+    name: kinnex_sc_isoseq_correct
