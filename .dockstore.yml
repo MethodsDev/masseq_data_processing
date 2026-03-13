@@ -85,3 +85,8 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: filter_LRreads_using_CBs
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/median_umi_per_cell.wdl
+    testParameterFiles:
+      - /optional.json
+    name: median_umi_per_cell
