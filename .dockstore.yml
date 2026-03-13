@@ -84,4 +84,4 @@ workflows:
     primaryDescriptorPath: /wdl/filter_LRreads_using_CBs.wdl
     testParameterFiles:
       - /optional.json
-    name: kinnex_sc_isoseq_correct
+    name: filter_LRreads_using_CBs
