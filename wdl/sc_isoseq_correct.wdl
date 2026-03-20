@@ -56,17 +56,13 @@ task pbCorrect {
     Int machine_mem               = select_first([mem_gb, default_ram])
     String outdir                 = sub(gcs_output_dir, "/$", "") + "/"
     String resolved_sample_id     = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".lima.refine", "")])
-    command <
+    command <<<
         set -euxo pipefail
         echo "Running isoseq correct..."
         isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam
         echo "isoseq correct completed."
-
-        # Find the JSON emitted automatically by isoseq correct
         JSON_FILE=$(ls *.json | head -1)
         mv $JSON_FILE ~{resolved_sample_id}.correct.json
-
-        # Parse yield_fraction and yield_count
         python3 -c "
 import json
 with open('~{resolved_sample_id}.correct.json') as f:
