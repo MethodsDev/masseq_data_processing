@@ -27,10 +27,10 @@ workflow isoseqCorrect {
     }
 
     output {
-        File corrected_reads   = pbCorrect.corrected_reads
-        File correct_json      = pbCorrect.correct_json
-        Float yield_fraction   = pbCorrect.yield_fraction
-        Float yield_count      = pbCorrect.yield_count
+        File corrected_reads  = pbCorrect.corrected_reads
+        File correct_json     = pbCorrect.correct_json
+        Float yield_fraction  = pbCorrect.yield_fraction
+        Float yield_count     = pbCorrect.yield_count
     }
 }
 
@@ -51,41 +51,48 @@ task pbCorrect {
         Int? boot_disk_size_gb
     }
 
-    Float input_files_size_gb  = 2.5 * (size(refine_bam, "GiB"))
-    Int default_ram            = 32
-    Int default_disk_space_gb  = ceil((input_files_size_gb * 5) + 1024)
+    Float input_files_size_gb     = 2.5 * (size(refine_bam, "GiB"))
+    Int default_ram               = 32
+    Int default_disk_space_gb     = ceil((input_files_size_gb * 5) + 1024)
     Int default_boot_disk_size_gb = 50
-    Int machine_mem            = select_first([mem_gb, default_ram])
-    String outdir              = sub(gcs_output_dir, "/$", "") + "/"
-    String resolved_sample_id  = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
+    Int machine_mem               = select_first([mem_gb, default_ram])
+    String outdir                 = sub(gcs_output_dir, "/$", "") + "/"
+    String resolved_sample_id     = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
 
     command <
         set -euxo pipefail
 
+        # Localize all WDL interpolations into bash variables
+        BARCODES="~{barcodes_list}"
+        THREADS="~{num_threads}"
+        REFINE_BAM="~{refine_bam}"
+        SAMPLE_ID="~{resolved_sample_id}"
+        OUTDIR="~{outdir}"
+
         echo "Running isoseq correct..."
-        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam --json ~{resolved_sample_id}.correct.json
+        isoseq correct --barcodes $BARCODES -j $THREADS $REFINE_BAM ${SAMPLE_ID}.corrected.bam --json ${SAMPLE_ID}.correct.json
         echo "isoseq correct completed."
 
         # Parse yield stats from JSON
         python3 -c "
-import json, sys
-with open('~{resolved_sample_id}.correct.json') as f:
+import json
+with open('${SAMPLE_ID}.correct.json') as f:
     data = json.load(f)
 attrs = {a['id']: a['value'] for a in data['attributes']}
 print(attrs['yield_fraction'])
 " > yield_fraction.txt
 
         python3 -c "
-import json, sys
-with open('~{resolved_sample_id}.correct.json') as f:
+import json
+with open('${SAMPLE_ID}.correct.json') as f:
     data = json.load(f)
 attrs = {a['id']: a['value'] for a in data['attributes']}
 print(int(attrs['yield_count']))
 " > yield_count.txt
 
         echo "Uploading corrected bams and stats..."
-        gsutil -m cp *.corrected* ~{outdir}correct/
-        gsutil -m cp *.correct.json ~{outdir}correct/
+        gsutil -m cp *.corrected* ${OUTDIR}correct/
+        gsutil -m cp *.correct.json ${OUTDIR}correct/
         echo "Copying completed!"
     >>>
 
