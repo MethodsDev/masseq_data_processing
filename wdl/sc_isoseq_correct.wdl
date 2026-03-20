@@ -63,12 +63,7 @@ task pbCorrect {
         set -euxo pipefail
 
         echo "Running isoseq correct..."
-        isoseq correct \
-            --barcodes ~{barcodes_list} \
-            -j ~{num_threads} \
-            ~{refine_bam} \
-            ~{resolved_sample_id}.corrected.bam \
-            --json ~{resolved_sample_id}.correct.json
+        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam --json ~{resolved_sample_id}.correct.json
         echo "isoseq correct completed."
 
         # Parse yield stats from JSON
