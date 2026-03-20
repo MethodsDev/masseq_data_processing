@@ -27,13 +27,16 @@ workflow isoseqCorrect {
     }
 
     output {
-        File corrected_reads = pbCorrect.corrected_reads
+        File corrected_reads   = pbCorrect.corrected_reads
+        File correct_json      = pbCorrect.correct_json
+        Float yield_fraction   = pbCorrect.yield_fraction
+        Float yield_count      = pbCorrect.yield_count
     }
 }
 
 task pbCorrect {
     meta {
-        description: "Given a refine.bam, runs isoseq correct."
+        description: "Given a refine.bam, runs isoseq correct and reports yield stats."
     }
 
     input {
@@ -48,28 +51,54 @@ task pbCorrect {
         Int? boot_disk_size_gb
     }
 
-    Float input_files_size_gb = 2.5 * (size(refine_bam, "GiB"))
-    Int default_ram = 32
-    Int default_disk_space_gb = ceil((input_files_size_gb * 5) + 1024)
+    Float input_files_size_gb  = 2.5 * (size(refine_bam, "GiB"))
+    Int default_ram            = 32
+    Int default_disk_space_gb  = ceil((input_files_size_gb * 5) + 1024)
     Int default_boot_disk_size_gb = 50
-    Int machine_mem = select_first([mem_gb, default_ram])
-    String outdir = sub(gcs_output_dir, "/$", "") + "/"
-    String resolved_sample_id = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".lima.refine", "")])
+    Int machine_mem            = select_first([mem_gb, default_ram])
+    String outdir              = sub(gcs_output_dir, "/$", "") + "/"
+    String resolved_sample_id  = select_first([sample_id, sub(basename(refine_bam, ".bam"), ".refine", "")])
 
-    command <<<
+    command <
         set -euxo pipefail
 
         echo "Running isoseq correct..."
-        isoseq correct --barcodes ~{barcodes_list} -j ~{num_threads} ~{refine_bam} ~{resolved_sample_id}.corrected.bam
+        isoseq correct \
+            --barcodes ~{barcodes_list} \
+            -j ~{num_threads} \
+            ~{refine_bam} \
+            ~{resolved_sample_id}.corrected.bam \
+            --json ~{resolved_sample_id}.correct.json
         echo "isoseq correct completed."
 
-        echo "Uploading corrected bams..."
+        # Parse yield stats from JSON
+        python3 -c "
+import json, sys
+with open('~{resolved_sample_id}.correct.json') as f:
+    data = json.load(f)
+attrs = {a['id']: a['value'] for a in data['attributes']}
+print(attrs['yield_fraction'])
+" > yield_fraction.txt
+
+        python3 -c "
+import json, sys
+with open('~{resolved_sample_id}.correct.json') as f:
+    data = json.load(f)
+attrs = {a['id']: a['value'] for a in data['attributes']}
+print(int(attrs['yield_count']))
+" > yield_count.txt
+
+        echo "Uploading corrected bams and stats..."
         gsutil -m cp *.corrected* ~{outdir}correct/
-        echo "Copying corrected reads completed!"
+        gsutil -m cp *.correct.json ~{outdir}correct/
+        echo "Copying completed!"
     >>>
 
     output {
         File corrected_reads = "~{resolved_sample_id}.corrected.bam"
+        File correct_json    = "~{resolved_sample_id}.correct.json"
+        Float yield_fraction = read_float("yield_fraction.txt")
+        Float yield_count    = read_float("yield_count.txt")
     }
 
     runtime {
