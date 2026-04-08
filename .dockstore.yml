@@ -90,3 +90,8 @@ workflows:
     testParameterFiles:
       - /optional.json
     name: median_umi_per_cell
+  - subclass: WDL
+    primaryDescriptorPath: /wdl/kinnex_bulk_preprocessing.wdl
+    testParameterFiles:
+      - /optional.json
+    name: kinnex_bulk_preprocessing
