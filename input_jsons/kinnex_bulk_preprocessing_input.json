@@ -1,16 +1,16 @@
 {
     "masseq_bulk_pipeline.input_bam":            "gs://path/to/your/hifi_reads.bam",
-    "masseq_bulk_pipeline.sample_id":            "your_sample_id", #optional intermediates will be names after movie name if not prsnet
-    "masseq_bulk_pipeline.mas_adapters_fasta":   "gs://path/to/mas_adapters.fasta", # mas8_primers.fasta - input for bulk deconcatenation with skera
+    "masseq_bulk_pipeline.sample_id":            "your_sample_id", (optional intermediates will be names after movie name if not present)
+    "masseq_bulk_pipeline.mas_adapters_fasta":   "gs://path/to/mas_adapters.fasta",  (mas8_primers.fasta - input for bulk deconcatenation with skera)
     "masseq_bulk_pipeline.arraysize":            8,
 
-    "masseq_bulk_pipeline.bulk_barcodes_fasta":  "gs://path/to/bulk_barcodes.fasta", #bulk12_barcodes.fasta or isoseq_barcodes_36.fasta depending upon multiplexing scheme
+    "masseq_bulk_pipeline.bulk_barcodes_fasta":  "gs://path/to/bulk_barcodes.fasta", (bulk12_barcodes.fasta or isoseq_barcodes_36.fasta depending upon multiplexing scheme)
     "masseq_bulk_pipeline.trimPolyA":            true,
     "masseq_bulk_pipeline.clipAdapters":         true,
 
-    "masseq_bulk_pipeline.barcode_to_sample":    "gs://path/to/barcode_to_sample.tsv", #barcode to sample correspondence .csv, required colnames (Sample_ID,Kinnex_Adapter,IsoSeq_primer)
-    "masseq_bulk_pipeline.datasetId":            "Replicates_merged", # plot title for readcounts plot
-    "masseq_bulk_pipeline.mergeBams":            true, #dry run mode for merging if set to false
+    "masseq_bulk_pipeline.barcode_to_sample":    "gs://path/to/barcode_to_sample.tsv", (barcode to sample correspondence .csv, required colnames (Sample_ID,Kinnex_Adapter,IsoSeq_primer))
+    "masseq_bulk_pipeline.datasetId":            "Replicates_merged",  (title for readcounts plot)
+    "masseq_bulk_pipeline.mergeBams":            true, (dry run mode for merging if set to false)
 
     "masseq_bulk_pipeline.gcs_output_dir":       "gs://your-bucket/output/",
     "masseq_bulk_pipeline.num_threads":          16
